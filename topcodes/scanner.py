@@ -109,11 +109,37 @@ class Scanner(object):
         Returned value is between 0 (black) and 255 (white).   
         """
 
-        if( x < 1 or x > (self._width-2) or y < 1 or y > (self._height-2)):
+        if( x < 1 
+            or x > (self._width-2) 
+            or y < 1 
+            or y > (self._height-2)):
             return 0
         pixel, sum = 0,0
         for j in range(y-1,y+1, 1):
             for i in range (x-1, x+1, 1):
                 pixel = self.data[j*self._width+i]
+                if ((pixel & 0x01000000) > 0):
+                    sum+=0xff
+        
+        return sum / 9
 
-
+    def getBW3x3(self, x:int, y:int)->int:
+        """
+        Average of thresholded pixels in a 3x3 region around (x,y).
+        Returned value is either 0 (black) or 1 (white).    
+        """
+        if( x < 1 
+            or x > (self._width-2) 
+            or y < 1 
+            or y > (self._height-2)):
+            return 0
+        
+        pixel, sum = 0,0
+        for j in range(y-1,y+1, 1):
+            for i in range (x-1, x+1, 1):
+                pixel = self.data[j*self._width+i]
+                sum+=((pixel >> 24) & 0x01)
+        if sum >= 5:
+            return 1
+        else:
+            return 0
