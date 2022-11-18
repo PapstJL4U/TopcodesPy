@@ -106,4 +106,5 @@ class TopCode(object):
         """returns if code was decoded succesfully"""
         return self._code > 0
 
-    
+    def decode(scanner:Scanner, cx:int, cy:int)->int:
+        pass
