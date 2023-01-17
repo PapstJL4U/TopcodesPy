@@ -11,7 +11,7 @@ class TopCode(object):
     # Width of the code in units (ring widths)
     _width: int = 8
     # Pi :)
-    _PI: float = math.Pi
+    _PI: float = math.pi
     # Span of a data sector in radians
     _ARC: float = 2 * _PI / _sectors
 

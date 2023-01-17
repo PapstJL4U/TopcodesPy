@@ -16,15 +16,15 @@ from topcode import TopCode
 
 class Scanner(object):
     # original image
-    _image: Image.Image = None
+    _image: Image.Image
     # Total width of the image
     _width = 0
     # Total height of the image
     _height = 0
     # Holds process binary pixel data
-    _data: list[int | None] = [None]
+    _data: list[int] = []
     # Binary view of the image
-    _preview = None
+    _preview: Image.Image
     # candidate code count
     _ccount: int = 0
     # number of candidates tested
@@ -35,31 +35,31 @@ class Scanner(object):
     def __init__(self):
         pass
 
-    def scan_by_filename(self, filename: str = None) -> list:
+    def scan_by_filename(self, filename: str = "") -> list:
         with Image.open(filename) as im:
             return self.scan_image(im)
 
     def scan_image(self, image: Image.Image) -> list:
         """Scan the given image and return a list of all topcodes"""
         self._image = image
-        self._preview = None
+        #self._preview = None
         self._width = image.width
         self._height = image.height
         self._data = list(image.convert("RGB").getdata())
 
         self._threshold()
-        return self._findCode()
+        return self._findCodes()
 
     def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list:
         self._width = width
         self._height = height
         self._data = rgb
-        self._preview = None
+        #self._preview = None
         # unsure
         self._image = Image.fromarray(rgb, mode="RGB")
 
         self._threshold()
-        return self._findCode()
+        return self._findCodes()
 
     @property
     def image(self) -> Image.Image:
@@ -117,11 +117,11 @@ class Scanner(object):
         sum: int = 0
         for j in range(y - 1, y + 1, 1):
             for i in range(x - 1, x + 1, 1):
-                pixel = self.data[j * self._width + i]
+                pixel = self._data[j * self._width + i]
                 if (pixel & 0x01000000) > 0:
                     sum += 0xFF
 
-        return sum / 9
+        return sum // 9
 
     def getBW3x3(self, x: int, y: int) -> int:
         """
@@ -135,14 +135,14 @@ class Scanner(object):
         sum: int = 0
         for j in range(y - 1, y + 1, 1):
             for i in range(x - 1, x + 1, 1):
-                pixel = self.data[j * self._width + i]
+                pixel = self._data[j * self._width + i]
                 sum += (pixel >> 24) & 0x01
         if sum >= 5:
             return 1
         else:
             return 0
 
-    def threshold(self) -> None:
+    def _threshold(self) -> None:
         """
         Perform Wellner adaptive thresholding to produce binary pixel
         data.  Also mark candidate spotcode locations.
@@ -173,8 +173,8 @@ class Scanner(object):
             Process rows back and forth 
             (alternating left-2-right, right-2-left)
             """
-            k = 0 if (j % 2 == 0) else (self.width - 1)
-            k += j * self.width
+            k = 0 if (j % 2 == 0) else (self._width - 1)
+            k += j * self._width
 
             for i in range(self._width):
                 """
@@ -184,13 +184,13 @@ class Scanner(object):
                 r = (pixel >> 16) & 0xFF
                 g = (pixel >> 8) & 0xFF
                 r = (pixel) & 0xFF
-                a = (r + g + b) / 3
+                a = (r + g + b) // 3
 
                 """
                 Calculate sum as an approximate sum 
                 of the last s pixels
                 """
-                sum += a - (sum / s)
+                sum += a - (sum // s)
 
                 """
                 Cimpare the average sum to current
@@ -243,14 +243,14 @@ class Scanner(object):
                             and b2 >= 22
                             and b1 <= self._maxu
                             and w1 <= (self._maxu + self._maxu)
-                            and math.abs(b1 + b2 - w1) <= (b1 + b2)
-                            and math.abs(b1 + b2 - w1) <= w1
-                            and math.abs(b1 - b2) <= b1
-                            and math.abs(b1 - b2) <= b2
+                            and abs(b1 + b2 - w1) <= (b1 + b2)
+                            and abs(b1 + b2 - w1) <= w1
+                            and abs(b1 - b2) <= b1
+                            and abs(b1 - b2) <= b2
                         ):
                             mask = 0x2000000
 
-                            dk = 1 + b1 + w1 / 2
+                            dk = 1 + b1 + w1 // 2
                             if j % 2 == 0:
                                 dk = k - dk
                             else:
@@ -267,25 +267,25 @@ class Scanner(object):
                         level = 2
             k += 1 if (j % 2 == 0) else -1
 
-    def findCodes(self) -> list[TopCode]:
+    def _findCodes(self) -> list[TopCode]:
         self._tcount = 0
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
-        k: int = self.width * 2
-        for j in range(self.height - 2):
-            for i in range(self.width):
-                if (self._datadata[k] & 0x2000000) > 0:
+        k: int = self._width * 2
+        for j in range(self._height - 2):
+            for i in range(self._width):
+                if (self._data[k] & 0x2000000) > 0:
                     if (
                         (self._data[k - 1] & 0x2000000) > 0
                         and (self._data[k + 1] & 0x2000000) > 0
-                        and (self._data[k - self.width] & 0x2000000) > 0
-                        and (self._data[k + self.width] & 0x2000000) > 0
+                        and (self._data[k - self._width] & 0x2000000) > 0
+                        and (self._data[k + self._width] & 0x2000000) > 0
                     ):
-                        if not self.overlaps(spot, i, j):
+                        if not self.overlaps(spots, i, j):
                             self._tcount += 1
                             spot.decode(self, i, j)
-                            if spot.isValid():
-                                spots.add(spot)
+                            if spot.isValid:
+                                spots.append(spot)
                                 spot = TopCode()
                 k += 1
         return spots
@@ -308,7 +308,7 @@ class Scanner(object):
         start: int = self.getBW3x3(x, y)
 
         j: int = y + d
-        while j > 1 and j < (self.height - 1):
+        while j > 1 and j < (self._height - 1):
             sample = self.getBW3x3(x, j)
             if start + sample == 1:
                 value = (j - y) if d > 0 else (y - j)
@@ -334,19 +334,19 @@ class Scanner(object):
                 return value
         return -1
 
-    def getPreview(self) -> Image:
+    def getPreview(self) -> Image.Image:
         """
         For debugging purposes, create a black and white image
         that shows the result of adaptive thresholding
         """
         if self._preview != None:
             return self._preview
-        self._preview = Image.new(mode="RGB", size=(self.width, self.height))
+        self._preview = Image.new(mode="RGB", size=(self._width, self._height))
 
         pixel: int = 0
         k: int = 0
-        for j in range(self.height):
-            for i in range(self.width):
+        for j in range(self._height):
+            for i in range(self._width):
                 pixel = self._data[k + 1] >> 24
                 if pixel == 0:
                     pixel == 0xFF000000
@@ -356,6 +356,6 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
-                self._preview.setRGB(i, j, pixel)
+                self._preview.putpixel(xy=(i,j), value=pixel)
 
         return self._preview
