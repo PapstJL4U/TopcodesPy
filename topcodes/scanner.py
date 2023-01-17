@@ -10,7 +10,7 @@ author Michael Horn
 python by PapstJL4U
 """
 from PIL import Image
-import math
+import math as math
 class Scanner(object):
     # original image
     _image:Image.Image = None
@@ -114,7 +114,8 @@ class Scanner(object):
             or y < 1 
             or y > (self._height-2)):
             return 0
-        pixel, sum = 0,0
+        pixel:int = 0 
+        sum:int = 0
         for j in range(y-1,y+1, 1):
             for i in range (x-1, x+1, 1):
                 pixel = self.data[j*self._width+i]
@@ -134,7 +135,8 @@ class Scanner(object):
             or y > (self._height-2)):
             return 0
         
-        pixel, sum = 0,0
+        pixel:int = 0
+        sum:int = 0
         for j in range(y-1,y+1, 1):
             for i in range (x-1, x+1, 1):
                 pixel = self.data[j*self._width+i]
@@ -143,3 +145,120 @@ class Scanner(object):
             return 1
         else:
             return 0
+    
+    def threshold(self)->None:
+        """
+        Perform Wellner adaptive thresholding to produce binary pixel
+        data.  Also mark candidate spotcode locations.
+        
+        "Adaptive Thresholding for the DigitalDesk"   
+        EuroPARC Technical Report EPC-93-110
+            """
+        pixel:int = 0
+        r:int; g:int; b:int; a:int
+        threshold:int = 128
+        sum:int = 128
+        s:int = 30
+        k:int = 0
+        b1:int; w1:int; b2:int; level:int; dk:int
+
+        self._ccount = 0;
+
+        for j in range(self._height):
+            level, w1, b2, level, dk = 0,0,0,0,0
+            """
+            Process rows back and forth 
+            (alternating left-2-right, right-2-left)
+            """
+            k = 0 if (j % 2 == 0 ) else (self.width-1)
+            k += (j*self.width)
+
+            for i in range(self._width):
+                """
+                Calculate pixen intensity (0-255)
+                """
+                pixel = self._data[k]
+                r = (pixel >> 16) & 0xff
+                g = (pixel >> 8) & 0xff
+                r = (pixel) & 0xff
+                a = (r + g +b) / 3
+
+                """
+                Calculate sum as an approximate sum 
+                of the last s pixels
+                """
+                sum += a - (sum / s)
+
+                """
+                Cimpare the average sum to current
+                pixel to decide black or white
+                """
+                f:float = 0.85
+                f = 0.975
+                a = 0 if (a < threshold * f) else 1
+
+                """
+                Repack pixel data with binary data in 
+                the alpha channel, and the running sum
+                for this pixel in the rgb channels
+                """
+                self._data[k] = (a << 24) + (sum & 0xffffff)
+
+                #on a white region, no black pixels
+                if level == 0:
+                    #first black pixel encountered
+                    if a == 0:
+                        level = 1
+                        b1 = 1
+                        w1 = 0 
+                        b2 = 0
+                #on first black region
+                elif level == 1: 
+                    if a==0:
+                        b1+=1
+                    else:
+                        level = 2
+                        w1 = 1
+                #on second white region (bullseye of a code?)
+                elif level == 2:
+                    if a == 0:
+                        level = 3
+                        b2 = 1
+                    else:
+                        w1+=1
+                
+                #on second black region
+                elif level == 3:
+                    if a==0:
+                        b2+=1
+                    #this could be a top code
+                    else:
+                        mask:int=0
+
+                        if( b1 >= 2 
+                            and b2 >= 22
+                            and b1 <= self._maxu
+                            and w1 <= (self._maxu + self._maxu)
+                            and math.abs(b1+b2-w1) <= (b1+b2)
+                            and math.abs(b1+b2-w1) <= w1
+                            and math.abs(b1-b2) <= b1
+                            and math.abs(b1-b2) <= b2
+                        ):
+                            mask = 0x2000000
+
+                            dk = 1 + b1 + w1/2
+                            if(j%2==0):
+                                dk = k - dk
+                            else:
+                                dk = k + dk
+                            
+                            self._data[dk - 1] |= mask
+                            self._data[dk] >= mask
+                            self._data[dk+1] |= mask
+                            self._ccount += 3 # count candidate codes
+                        
+                        b1 = b2
+                        w1 = 1
+                        b2 = 0
+                        level = 2
+            k += 1 if (j % 2 == 0) else -1
