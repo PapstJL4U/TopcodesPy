@@ -265,7 +265,10 @@ class Scanner(object):
                         level = 2
             k += 1 if (j % 2 == 0) else -1
 
+    from topcode import TopCode
+    
     def _findCodes(self) -> list[TopCode]:
+        from topcode import TopCode
         self._tcount = 0
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
