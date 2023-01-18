@@ -1,6 +1,8 @@
 """
 """
 import PySimpleGUI as sg
+from scanner import Scanner
+from topcode import TopCode
 """
 Layout
 """
@@ -29,7 +31,8 @@ window = sg.Window("TopCode-Debug", layout, finalize=False)
 """
 Functions
 """
-
+def findTopCodes()->None:
+    pass 
 
 while True:
     event, values = window.read()
