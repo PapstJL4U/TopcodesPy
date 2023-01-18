@@ -224,8 +224,8 @@ class TopCode(object):
             # Take 8 samples across the diameter of the symbol
             for i in range(self._width):
                 dist = (i - 3.5) * self._unit
-                sx = round(x + dx * dist)
-                sy = round(y + dy * dist)
+                sx = round(self.x + dx * dist)
+                sy = round(self.y + dy * dist)
                 self._core[i] = scanner.getSample3x3(sx, sy)
 
             # white rings
@@ -303,7 +303,7 @@ class TopCode(object):
         """
         Returns true if given point is inside the bulls-eye
         """
-        left: float = (x - px) * (x - px) + (y - py) * (y - py)
+        left: float = (self.x - px) * (self.x - px) + (self.y - py) * (self.y - py)
         right: float = self._unit * self._unit
         return left <= right
 
@@ -376,6 +376,7 @@ class TopCode(object):
                     return -1
                 else:
                     return u
+        return -1
 
     @no_type_check
     def annotate(self, g: object, scanner: Scanner) -> None:
