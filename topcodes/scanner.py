@@ -11,7 +11,7 @@ python by PapstJL4U
 """
 from PIL import Image
 import math as math
-from topcode_interface import TopCode
+from topcodes.topcode_interface import TopCode
 
 class Scanner(object):
     # original image
