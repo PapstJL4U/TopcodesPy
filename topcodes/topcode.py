@@ -46,7 +46,7 @@ class TopCode(object):
     # Vertical center of a symbol
     _y: float
 
-    def __init__(self)->None:
+    def __init__(self) -> None:
         """
         default construction
         """
@@ -61,7 +61,7 @@ class TopCode(object):
         # Vertical center of a symbol
         self._y: float = 0.0
         # Buffer used to decode sectors
-        self._core : list[int] = [] * TopCode._width
+        self._core: list[int] = [] * TopCode._width
 
     def by_value(self, code: int = 0):
         """
@@ -154,7 +154,7 @@ class TopCode(object):
             + scanner.ydist(cx + 1, cy, 1)
         )
         left: int = (
-            scanner.xdist(cx, cy, - 1)
+            scanner.xdist(cx, cy, -1)
             + scanner.xdist(cx, cy - 1, -1)
             + scanner.xdist(cx, cy + 1, 1)
         )

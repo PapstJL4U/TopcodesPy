@@ -12,6 +12,7 @@ python by PapstJL4U
 from PIL import Image
 import math as math
 
+
 class Scanner(object):
     # original image
     _image: Image.Image
@@ -40,7 +41,7 @@ class Scanner(object):
     def scan_image(self, image: Image.Image) -> list:
         """Scan the given image and return a list of all topcodes"""
         self._image = image
-        #self._preview = None
+        # self._preview = None
         self._width = image.width
         self._height = image.height
         self._data = list(image.convert("RGB").getdata())
@@ -52,7 +53,7 @@ class Scanner(object):
         self._width = width
         self._height = height
         self._data = rgb
-        #self._preview = None
+        # self._preview = None
         # unsure
         self._image = Image.fromarray(rgb, mode="RGB")
 
@@ -266,9 +267,10 @@ class Scanner(object):
             k += 1 if (j % 2 == 0) else -1
 
     from topcode import TopCode
-    
+
     def _findCodes(self) -> list[TopCode]:
         from topcode import TopCode
+
         self._tcount = 0
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
@@ -357,6 +359,6 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
-                self._preview.putpixel(xy=(i,j), value=pixel)
+                self._preview.putpixel(xy=(i, j), value=pixel)
 
         return self._preview
