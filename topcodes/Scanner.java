@@ -349,11 +349,11 @@ public class Scanner {
                else {
                   int mask;
                   if (b1 >= 2 && b2 >= 2 &&  // less than 2 pixels... not interested
-                      b1 <= maxu && b2 <= maxu && w1 <= (maxu + maxu) &&
-                      Math.abs(b1 + b2 - w1) <= (b1 + b2) &&
-                      Math.abs(b1 + b2 - w1) <= w1 &&
-                      Math.abs(b1 - b2) <= b1 &&
-                      Math.abs(b1 - b2) <= b2) {
+                     b1 <= maxu && b2 <= maxu && w1 <= (maxu + maxu) &&
+                     Math.abs(b1 + b2 - w1) <= (b1 + b2) &&
+                     Math.abs(b1 + b2 - w1) <= w1 &&
+                     Math.abs(b1 - b2) <= b1 &&
+                     Math.abs(b1 - b2) <= b2) {
                      mask = 0x2000000;
 
                      dk = 1 + b2 + w1/2;

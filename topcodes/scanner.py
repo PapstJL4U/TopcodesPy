@@ -47,8 +47,14 @@ class Scanner(object):
         # self._preview = None
         self._width = image.width
         self._height = image.height
-        self._data = list(image.convert("RGB").getdata())
-
+        LOP = list(image.convert("RGB").getdata())
+        self._data = [0] * len(LOP)
+        for i in range(len(LOP)):
+            r, g, b = LOP[i]
+            # rgb = 65536 * r + 256 * g + b
+            # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
+            pixel: int = 0x10000 * r + 0x100 * g + b
+            self._data[i] = pixel
         self._threshold()
         return self._findCodes()
 
@@ -158,7 +164,7 @@ class Scanner(object):
         b: int
         a: int
         threshold: int = 128
-        sum: int = 128
+        summ: int = 128
         s: int = 30
         k: int = 0
         b1: int
@@ -183,16 +189,17 @@ class Scanner(object):
                 Calculate pixen intensity (0-255)
                 """
                 pixel = self._data[k]
+                # r, g, b = pixel
                 r = (pixel >> 16) & 0xFF
                 g = (pixel >> 8) & 0xFF
-                r = (pixel) & 0xFF
+                b = pixel & 0xFF
                 a = (r + g + b) // 3
 
                 """
                 Calculate sum as an approximate sum 
                 of the last s pixels
                 """
-                sum += a - (sum // s)
+                summ += a - (summ // s)
 
                 """
                 Cimpare the average sum to current
@@ -207,7 +214,7 @@ class Scanner(object):
                 the alpha channel, and the running sum
                 for this pixel in the rgb channels
                 """
-                self._data[k] = (a << 24) + (sum & 0xFFFFFF)
+                self._data[k] = (a << 24) + (summ & 0xFFFFFF)
 
                 # on a white region, no black pixels
                 if level == 0:

@@ -2,12 +2,13 @@
 """
 import PySimpleGUI as sg
 from scanner import Scanner
-from topcode import TopCode
 
 """
 Layout
 """
 sg.theme("Default1")
+
+file_types = [("PNG (*.png)", "*.png"), ("All files (*.*)", "*.*")]
 
 bottom = sg.Column(
     [
@@ -19,27 +20,48 @@ bottom = sg.Column(
 mid = sg.Column(
     [
         [
+            sg.Button("Find Codes", key="-findCode-"),
             sg.Button("Highlight Codes", key="-highlight-"),
             sg.Button("Show Threshold", key="-treshold-"),
-            sg.Button("Load Image", key="-load-"),
-        ]
+        ],
+        [
+            sg.FileBrowse(
+                "Load Image",
+                target="-path-",
+                file_types=file_types,
+                initial_folder="topcodes/test_img/",
+                key="-browse-"
+            ),
+            sg.Input("", disabled=True, key="-path-",  enable_events=True,),
+        ],
     ]
 )
 
 top = sg.Column(
-    [[sg.Image(source=r"topcodes/test_img/tops.png", size=(700, 700), key="-image-")]]
+    [[sg.Image(source=r"topcodes/default.png", size=(700, 700), key="-image-")]]
 )
 
 layout = [[top], [mid], [bottom]]
 
-window = sg.Window("TopCode-Debug", layout, finalize=False)
+window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
+myScanner: Scanner = Scanner()
 """
 Functions
 """
+test = r"topcodes/test_img/341.png"
 
 
 def findTopCodes() -> None:
-    pass
+    codes: list = myScanner.scan_by_filename(test)
+    output = window["-output-"]
+    for code in codes:
+        output.print(code)
+
+    output.print("--Finished--")
+
+
+def loadImage(path: str = "") -> None:
+    window["-image-"].update(source=path)
 
 
 while True:
@@ -50,5 +72,10 @@ while True:
         break
     if event == "-close-":
         pass
+    if event == "-findCode-":
+        findTopCodes()
+    if event == "-path-":
+        loadImage(values["-path-"])
+
 
 window.close()
