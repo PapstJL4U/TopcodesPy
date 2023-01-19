@@ -12,6 +12,7 @@ python by PapstJL4U
 from typing import no_type_check
 from PIL import Image
 from itertools import count
+from topcode import TopCode
 import math as math
 
 
@@ -471,7 +472,7 @@ class Scanner(object):
                     return u
         return -1
     
-    def readCode(self, scanner: Scanner, unit: float, arca: float) -> int:
+    def readCode(self, topcode:TopCode , unit: float, arca: float) -> int:
         """
         Attempts to decode the binary pixels of an image into a code
 
@@ -490,52 +491,52 @@ class Scanner(object):
         self._code = -1
 
         # count down from Sectors down to 0
-        for sector in range(TopCode._sectors - 1, -1, -1):
-            dx = math.cos(TopCode._ARC * sector + arca)
-            dy = math.sin(TopCode._ARC * sector + arca)
+        for sector in range(TopCode.SECTORS - 1, -1, -1):
+            dx = math.cos(TopCode.ARC * sector + arca)
+            dy = math.sin(TopCode.ARC * sector + arca)
 
             # Take 8 samples across the diameter of the symbol
-            for i in range(self._width):
-                dist = (i - 3.5) * self._unit
-                sx = round(self.x + dx * dist)
-                sy = round(self.y + dy * dist)
-                self._core[i] = scanner.getSample3x3(sx, sy)
+            for i in range(topcode._width):
+                dist = (i - 3.5) * topcode._unit
+                sx = round(topcode.x + dx * dist)
+                sy = round(topcode.y + dy * dist)
+                topcode._core[i] = self.getSample3x3(sx, sy)
 
             # white rings
             if (
-                (self._core[1] <= 128)
-                or (self._core[3] <= 128)
-                or (self._core[4] <= 128)
-                or (self._core[6] <= 128)
+                (topcode._core[1] <= 128)
+                or (topcode._core[3] <= 128)
+                or (topcode._core[4] <= 128)
+                or (topcode._core[6] <= 128)
             ):
                 return 0
 
             # black ring
-            if (self._core[2] > 128) or (self._core[5] > 128):
+            if (topcode._core[2] > 128) or (topcode._core[5] > 128):
                 return 0
 
             # compute confidence in core sample
             c += (
-                self._core[1]
-                + self._core[3]
-                + self._core[4]
-                + self._core[6]
-                + (0xFF - self._core[2])
-                + (0xFF - self._core[5])
+                topcode._core[1]
+                + topcode._core[3]
+                + topcode._core[4]
+                + topcode._core[6]
+                + (0xFF - topcode._core[2])
+                + (0xFF - topcode._core[5])
             )
 
             # data rings
-            c += abs(self._core[7] * 2 - 0xFF)
+            c += abs(topcode._core[7] * 2 - 0xFF)
 
             # opposite data ring
-            c += 0xFF - abs(self._core[0] * 2 - 0xFF)
+            c += 0xFF - abs(topcode._core[0] * 2 - 0xFF)
 
-            bit = 1 if self._core[7] > 128 else 0
+            bit = 1 if topcode._core[7] > 128 else 0
             bits <<= 1
             bits += bit
 
-        if self.checksum(bits):
-            self._code = bits
+        if topcode.checksum(bits):
+            topcode._code = bits
             return c
         else:
             return 0

@@ -70,7 +70,10 @@ class TopCode(object):
         TopCode.__init__(self)
         self.code = code
 
-
+    @property
+    def SECTORS(self) -> int:
+        return TopCode._sectors
+    
     @property
     def ARC(self) -> float:
         return TopCode._ARC
