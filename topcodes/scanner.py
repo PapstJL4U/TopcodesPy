@@ -9,6 +9,7 @@ author Michael Horn
 @version $Revision: 1.4 $, $Date: 2008/02/04 15:02:13 $
 python by PapstJL4U
 """
+from typing import no_type_check
 from PIL import Image
 import math as math
 
@@ -362,3 +363,37 @@ class Scanner(object):
                 self._preview.putpixel(xy=(i, j), value=pixel)
 
         return self._preview
+
+    @no_type_check
+    def annotate(self, g: object, scanner: Scanner) -> None:
+        """drawing method"""
+        dx: float = 0.0
+        dy: float = 0.0
+        dist: float = 0.0
+        sx: float = 0.0
+        sy: float = 0.0
+        bits: int = 0
+        for sector in range(self._sectors - 1, -1, -1):
+            dx = math.cos(self._ARC * sector + self._orientation)
+            dy = math.sin(self._ARC * sector + self._orientation)
+
+            # take 8 samples across the diameter of the symbol
+
+            sample: int = 0
+            for i in range(3, self._width):
+                dist = ((float)(i - 3.5)) * self._unit
+
+                sx = round(self.x + dx * dist)
+                sy = round(self.y + dy * dist)
+                sample = scanner.getBW3x3(sx, sy)
+
+                #
+                # PSEUDO CODE
+                # Look up JAVA components for this
+                color = "black" if sample == 0 else "white"
+                g.setColor(color)
+                rect: Rectangle2d = Rectangle.byFloat(sx - 0.6, sy - 0.6, 1.2, 1.2)
+                g.fill(rect)
+                g.setColor("red")
+                g.setStrike(Basicstroke(0.25))
+                g.draw(rect)
