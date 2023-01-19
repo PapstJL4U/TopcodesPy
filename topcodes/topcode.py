@@ -1,6 +1,5 @@
 """Describes the TopCodes"""
 import math as math
-from scanner import Scanner
 
 from typing import no_type_check
 
@@ -70,9 +69,20 @@ class TopCode(object):
         TopCode.__init__(self)
         self.code = code
 
+    @property 
+    def UNIT(self):
+        return TopCode._unit
+    
+    @property
+    def WIDTH(self)->int:
+        return TopCode._width
+    
     @property
     def SECTORS(self) -> int:
         return TopCode._sectors
+    
+    def get_core(self)->list[int]:
+        return self._core
     
     @property
     def ARC(self) -> float:
@@ -159,62 +169,6 @@ class TopCode(object):
     def isValid(self) -> bool:
         """returns if code was decoded succesfully"""
         return self._code > 0
-
-    def decode(self, scanner: Scanner, cx: int, cy: int) -> int:
-        up: int = (
-            scanner.ydist(cx, cy, -1)
-            + scanner.ydist(cx - 1, cy, -1)
-            + scanner.ydist(cx + 1, cy, -1)
-        )
-        down: int = (
-            scanner.ydist(cx, cy, 1)
-            + scanner.ydist(cx - 1, cy, 1)
-            + scanner.ydist(cx + 1, cy, 1)
-        )
-        left: int = (
-            scanner.xdist(cx, cy, -1)
-            + scanner.xdist(cx, cy - 1, -1)
-            + scanner.xdist(cx, cy + 1, 1)
-        )
-        right: int = (
-            scanner.xdist(cx, cy, 1)
-            + scanner.xdist(cx, cy - 1, 1)
-            + scanner.xdist(cx, cy + 1, 1)
-        )
-
-        self._x = cx
-        self._x += (right - left) / 6.0
-        self._y = cy
-        self._y += (down - up) / 6.0
-        self._unit = self.readUnit(scanner)
-        self._code = -1
-        if self._unit < 0:
-            return -1
-
-        c: int = 0
-        maxc: int = 0
-        arca: float = 0
-        maxa: float = 0
-        maxu: float = 0
-        """
-        Try different uit and arc adjustments, 
-        save the one that produces a maximum confidence reading...
-        """
-        for u in range(-2, 3):
-            for a in range(10):
-                arca = a * TopCode._ARC * 1.0
-                c = self.readCode(scanner, self._unit + (self._unit * 0.05 * u), arca)
-                if c > maxc:
-                    maxc = c
-                    maxa = arca
-                    maxu = self._unit + (self._unit * 0.05 * u)
-
-        if maxc > 0:
-            self._unit = maxu
-            self.readCode(scanner, self._unit, maxa)
-            self.code = self.rotateLowest(self.code, maxa)
-
-        return self.code
 
     
 

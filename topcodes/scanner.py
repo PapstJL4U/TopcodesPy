@@ -476,7 +476,7 @@ class Scanner(object):
         """
         Attempts to decode the binary pixels of an image into a code
 
-        scanner - image scanner
+        topcode - topcode to read
         unit - width of single ring (codes are 8 units wide)
         arca - arc adjustment. rotation correction delta value
         """
@@ -490,53 +490,111 @@ class Scanner(object):
         bits: int = 0
         self._code = -1
 
+        topcore =  topcode.get_core()
+
         # count down from Sectors down to 0
         for sector in range(TopCode.SECTORS - 1, -1, -1):
             dx = math.cos(TopCode.ARC * sector + arca)
             dy = math.sin(TopCode.ARC * sector + arca)
 
             # Take 8 samples across the diameter of the symbol
-            for i in range(topcode._width):
-                dist = (i - 3.5) * topcode._unit
+            for i in range(topcode.WIDTH):
+                dist = (i - 3.5) * topcode.UNIT
                 sx = round(topcode.x + dx * dist)
                 sy = round(topcode.y + dy * dist)
-                topcode._core[i] = self.getSample3x3(sx, sy)
+                topcore[i] = self.getSample3x3(sx, sy)
 
             # white rings
             if (
-                (topcode._core[1] <= 128)
-                or (topcode._core[3] <= 128)
-                or (topcode._core[4] <= 128)
-                or (topcode._core[6] <= 128)
+                (topcore[1] <= 128)
+                or (topcore[3] <= 128)
+                or (topcore[4] <= 128)
+                or (topcore[6] <= 128)
             ):
                 return 0
-
+            
             # black ring
-            if (topcode._core[2] > 128) or (topcode._core[5] > 128):
+            if (topcore[2] > 128) or (topcore[5] > 128):
                 return 0
 
             # compute confidence in core sample
             c += (
-                topcode._core[1]
-                + topcode._core[3]
-                + topcode._core[4]
-                + topcode._core[6]
-                + (0xFF - topcode._core[2])
-                + (0xFF - topcode._core[5])
+                topcore[1]
+                + topcore[3]
+                + topcore[4]
+                + topcore[6]
+                + (0xFF - topcore[2])
+                + (0xFF - topcore[5])
             )
 
             # data rings
-            c += abs(topcode._core[7] * 2 - 0xFF)
+            c += abs(topcore[7] * 2 - 0xFF)
 
             # opposite data ring
-            c += 0xFF - abs(topcode._core[0] * 2 - 0xFF)
+            c += 0xFF - abs(topcore[0] * 2 - 0xFF)
 
-            bit = 1 if topcode._core[7] > 128 else 0
+            bit = 1 if topcore[7] > 128 else 0
             bits <<= 1
             bits += bit
 
         if topcode.checksum(bits):
-            topcode._code = bits
+            topcode.code = bits
             return c
         else:
             return 0
+        
+    def decode(self, scanner: Scanner, cx: int, cy: int) -> int:
+        up: int = (
+            scanner.ydist(cx, cy, -1)
+            + scanner.ydist(cx - 1, cy, -1)
+            + scanner.ydist(cx + 1, cy, -1)
+        )
+        down: int = (
+            scanner.ydist(cx, cy, 1)
+            + scanner.ydist(cx - 1, cy, 1)
+            + scanner.ydist(cx + 1, cy, 1)
+        )
+        left: int = (
+            scanner.xdist(cx, cy, -1)
+            + scanner.xdist(cx, cy - 1, -1)
+            + scanner.xdist(cx, cy + 1, 1)
+        )
+        right: int = (
+            scanner.xdist(cx, cy, 1)
+            + scanner.xdist(cx, cy - 1, 1)
+            + scanner.xdist(cx, cy + 1, 1)
+        )
+
+        self._x = cx
+        self._x += (right - left) / 6.0
+        self._y = cy
+        self._y += (down - up) / 6.0
+        self._unit = self.readUnit(scanner)
+        self._code = -1
+        if self._unit < 0:
+            return -1
+
+        c: int = 0
+        maxc: int = 0
+        arca: float = 0
+        maxa: float = 0
+        maxu: float = 0
+        """
+        Try different uit and arc adjustments, 
+        save the one that produces a maximum confidence reading...
+        """
+        for u in range(-2, 3):
+            for a in range(10):
+                arca = a * TopCode._ARC * 1.0
+                c = self.readCode(scanner, self._unit + (self._unit * 0.05 * u), arca)
+                if c > maxc:
+                    maxc = c
+                    maxa = arca
+                    maxu = self._unit + (self._unit * 0.05 * u)
+
+        if maxc > 0:
+            self._unit = maxu
+            self.readCode(scanner, self._unit, maxa)
+            self.code = self.rotateLowest(self.code, maxa)
+
+        return self.code
