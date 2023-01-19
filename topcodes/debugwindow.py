@@ -21,7 +21,7 @@ mid = sg.Column(
         [
             sg.Button("Find Codes", key="-findCode-", disabled=True),
             sg.Button("Highlight Codes", key="-highlight-"),
-            sg.Button("Show Threshold", key="-treshold-"),
+            sg.Button("Show Threshold", key="-treshold-")
         ],
         [
             sg.FileBrowse(
@@ -32,13 +32,13 @@ mid = sg.Column(
                 key="-browse-",
                 enable_events=True
             ),
-            sg.Input("", disabled=True, key="-path-",  enable_events=True),
+            sg.Input("", disabled=True, key="-path-",  enable_events=True, expand_x=True),
         ],
-    ]
+    ], expand_x=True
 )
 
 top = sg.Column(
-    [[sg.Image(source=r"topcodes/default.png", size=(700, 700), key="-image-")]]
+    [[sg.Image(source=r"topcodes/default.png", key="-image-")]]
 )
 
 layout = [[top], [mid], [bottom]]
