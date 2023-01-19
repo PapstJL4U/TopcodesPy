@@ -285,7 +285,7 @@ class Scanner(object):
                     ):
                         if not self.overlaps(spots, i, j):
                             self._tcount += 1
-                            self.decode(self, i, j)
+                            self.decode(spot, i, j)
                             if spot.isValid:
                                 spots.append(spot)
                                 spot = TopCode()
@@ -396,7 +396,6 @@ class Scanner(object):
                 g.setStrike(Basicstroke(0.25))
                 g.draw(rect)
 
-
     def readUnit(self, topcode: TopCode) -> float:
         """
         Determines the symbol's unit length by counting the number
@@ -467,8 +466,8 @@ class Scanner(object):
                 else:
                     return u
         return -1
-    
-    def readCode(self, topcode:TopCode , unit: float, arca: float) -> int:
+
+    def readCode(self, topcode: TopCode, unit: float, arca: float) -> int:
         """
         Attempts to decode the binary pixels of an image into a code
 
@@ -486,16 +485,16 @@ class Scanner(object):
         bits: int = 0
         self._code = -1
 
-        topcore =  topcode.get_core()
+        topcore = topcode.get_core()
 
         # count down from Sectors down to 0
-        for sector in range(TopCode.SECTORS - 1, -1, -1):
-            dx = math.cos(TopCode.ARC * sector + arca)
-            dy = math.sin(TopCode.ARC * sector + arca)
+        for sector in range(topcode.SECTORS - 1, -1, -1):
+            dx = math.cos(topcode.ARC * sector + arca)
+            dy = math.sin(topcode.ARC * sector + arca)
 
             # Take 8 samples across the diameter of the symbol
             for i in range(topcode.WIDTH):
-                dist = (i - 3.5) * topcode.UNIT
+                dist = (i - 3.5) * topcode.unit
                 sx = round(topcode.x + dx * dist)
                 sy = round(topcode.y + dy * dist)
                 topcore[i] = self.getSample3x3(sx, sy)
@@ -508,7 +507,7 @@ class Scanner(object):
                 or (topcore[6] <= 128)
             ):
                 return 0
-            
+
             # black ring
             if (topcore[2] > 128) or (topcore[5] > 128):
                 return 0
@@ -538,7 +537,7 @@ class Scanner(object):
             return c
         else:
             return 0
-        
+
     def decode(self, topcode: TopCode, cx: int, cy: int) -> int:
 
         up: int = (
@@ -583,11 +582,13 @@ class Scanner(object):
         for u in range(-2, 3):
             for a in range(10):
                 arca = a * topcode.ARC * 1.0
-                c = self.readCode(topcode, topcode.UNIT + (topcode.UNIT * 0.05 * u), arca)
+                c = self.readCode(
+                    topcode, topcode.unit + (topcode.unit * 0.05 * u), arca
+                )
                 if c > maxc:
                     maxc = c
                     maxa = arca
-                    maxu = topcode.UNIT + (topcode.UNIT* 0.05 * u)
+                    maxu = topcode.unit + (topcode.unit * 0.05 * u)
 
         if maxc > 0:
             self._unit = maxu

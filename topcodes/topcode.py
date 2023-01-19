@@ -69,34 +69,34 @@ class TopCode(object):
         TopCode.__init__(self)
         self.code = code
 
-    @property 
-    def unit(self)->float:
+    @property
+    def unit(self) -> float:
         # The width of a single ring.
         return TopCode._unit
-    
+
     @unit.setter
-    def unit(self, unit:float):
+    def unit(self, unit: float):
         self._unit = unit
-    
+
     @property
-    def WIDTH(self)->int:
+    def WIDTH(self) -> int:
         # Width of the code in units (ring widths)
         return TopCode._width
-    
+
     @property
     def SECTORS(self) -> int:
         # Number of sectors in the data ring
         return TopCode._sectors
-    
-    def get_core(self)->list[int]:
+
+    def get_core(self) -> list[int]:
         # Buffer used to decode sectors
         return self._core
-    
+
     @property
     def ARC(self) -> float:
         # Span of a data sector in radians
         return TopCode._ARC
-    
+
     @property
     def code(self) -> int:
         """
@@ -150,9 +150,9 @@ class TopCode(object):
         This gets set automatically by the decode() function.
         """
         return self._x
-    
+
     @x.setter
-    def x(self, x:float):
+    def x(self, x: float):
         if not (x == None):
             self._x = x
 
@@ -163,9 +163,9 @@ class TopCode(object):
         This gets set automatically by the decode() function.
         """
         return self._y
-    
+
     @y.setter
-    def y(self, y:float):
+    def y(self, y: float):
         if not (y == None):
             self._y = y
 
@@ -178,8 +178,6 @@ class TopCode(object):
     def isValid(self) -> bool:
         """returns if code was decoded succesfully"""
         return self._code > 0
-
-    
 
     def rotateLowest(self, bits: int, arca_para: float) -> int:
         """
@@ -221,8 +219,6 @@ class TopCode(object):
         right: float = self._unit * self._unit
         return left <= right
 
-
-
     @no_type_check
     def draw(self, g: object) -> None:
         """Draws heis spotcode with its current location
@@ -242,7 +238,15 @@ class TopCode(object):
         g.fill(circ)
 
         for i in range(self._sectors, -1, -1):
-            arc.setArc(self.x - r, self.y - r, r * 2, r * 2, i * sweep + sweep, sweep, Arc2D.PIE)
+            arc.setArc(
+                self.x - r,
+                self.y - r,
+                r * 2,
+                r * 2,
+                i * sweep + sweep,
+                sweep,
+                Arc2D.PIE,
+            )
             color: str = "white" if ((bits & 0x1) > 0) else "black"
             g.setColor(color)
             g.fill(arc)
