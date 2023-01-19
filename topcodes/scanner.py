@@ -543,35 +543,36 @@ class Scanner(object):
         else:
             return 0
         
-    def decode(self, scanner: Scanner, cx: int, cy: int) -> int:
+    def decode(self, topcode: TopCode, cx: int, cy: int) -> int:
+
         up: int = (
-            scanner.ydist(cx, cy, -1)
-            + scanner.ydist(cx - 1, cy, -1)
-            + scanner.ydist(cx + 1, cy, -1)
+            self.ydist(cx, cy, -1)
+            + self.ydist(cx - 1, cy, -1)
+            + self.ydist(cx + 1, cy, -1)
         )
         down: int = (
-            scanner.ydist(cx, cy, 1)
-            + scanner.ydist(cx - 1, cy, 1)
-            + scanner.ydist(cx + 1, cy, 1)
+            self.ydist(cx, cy, 1)
+            + self.ydist(cx - 1, cy, 1)
+            + self.ydist(cx + 1, cy, 1)
         )
         left: int = (
-            scanner.xdist(cx, cy, -1)
-            + scanner.xdist(cx, cy - 1, -1)
-            + scanner.xdist(cx, cy + 1, 1)
+            self.xdist(cx, cy, -1)
+            + self.xdist(cx, cy - 1, -1)
+            + self.xdist(cx, cy + 1, 1)
         )
         right: int = (
-            scanner.xdist(cx, cy, 1)
-            + scanner.xdist(cx, cy - 1, 1)
-            + scanner.xdist(cx, cy + 1, 1)
+            self.xdist(cx, cy, 1)
+            + self.xdist(cx, cy - 1, 1)
+            + self.xdist(cx, cy + 1, 1)
         )
 
-        self._x = cx
-        self._x += (right - left) / 6.0
-        self._y = cy
-        self._y += (down - up) / 6.0
-        self._unit = self.readUnit(scanner)
-        self._code = -1
-        if self._unit < 0:
+        topcode._x = cx
+        topcode._x += (right - left) / 6.0
+        topcode._y = cy
+        topcode._y += (down - up) / 6.0
+        topcode._unit = self.readUnit(topcode)
+        topcode._code = -1
+        if topcode._unit < 0:
             return -1
 
         c: int = 0
@@ -585,16 +586,16 @@ class Scanner(object):
         """
         for u in range(-2, 3):
             for a in range(10):
-                arca = a * TopCode._ARC * 1.0
-                c = self.readCode(scanner, self._unit + (self._unit * 0.05 * u), arca)
+                arca = a * topcode.ARC * 1.0
+                c = self.readCode(topcode, topcode.UNIT + (topcode.UNIT * 0.05 * u), arca)
                 if c > maxc:
                     maxc = c
                     maxa = arca
-                    maxu = self._unit + (self._unit * 0.05 * u)
+                    maxu = topcode.UNIT + (topcode.UNIT* 0.05 * u)
 
         if maxc > 0:
             self._unit = maxu
-            self.readCode(scanner, self._unit, maxa)
-            self.code = self.rotateLowest(self.code, maxa)
+            self.readCode(topcode, topcode._unit, maxa)
+            self.code = topcode.rotateLowest(topcode.code, maxa)
 
         return self.code
