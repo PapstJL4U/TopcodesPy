@@ -287,7 +287,7 @@ public class TopCode {
 
          // white rings
          if (core[1] <= 128 || core[3] <= 128 ||
-             core[4] <= 128 || core[6] <= 128) {
+            core[4] <= 128 || core[6] <= 128) {
             return 0;
          }
 

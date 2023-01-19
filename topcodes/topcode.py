@@ -70,22 +70,31 @@ class TopCode(object):
         self.code = code
 
     @property 
-    def UNIT(self):
+    def unit(self)->float:
+        # The width of a single ring.
         return TopCode._unit
+    
+    @unit.setter
+    def unit(self, unit:float):
+        self._unit = unit
     
     @property
     def WIDTH(self)->int:
+        # Width of the code in units (ring widths)
         return TopCode._width
     
     @property
     def SECTORS(self) -> int:
+        # Number of sectors in the data ring
         return TopCode._sectors
     
     def get_core(self)->list[int]:
+        # Buffer used to decode sectors
         return self._core
     
     @property
     def ARC(self) -> float:
+        # Span of a data sector in radians
         return TopCode._ARC
     
     @property

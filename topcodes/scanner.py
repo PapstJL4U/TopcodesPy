@@ -269,11 +269,7 @@ class Scanner(object):
                         level = 2
             k += 1 if (j % 2 == 0) else -1
 
-    from topcode import TopCode
-
     def _findCodes(self) -> list[TopCode]:
-        from topcode import TopCode
-
         self._tcount = 0
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
@@ -289,7 +285,7 @@ class Scanner(object):
                     ):
                         if not self.overlaps(spots, i, j):
                             self._tcount += 1
-                            spot.decode(self, i, j)
+                            self.decode(self, i, j)
                             if spot.isValid:
                                 spots.append(spot)
                                 spot = TopCode()
@@ -566,13 +562,13 @@ class Scanner(object):
             + self.xdist(cx, cy + 1, 1)
         )
 
-        topcode._x = cx
-        topcode._x += (right - left) / 6.0
-        topcode._y = cy
-        topcode._y += (down - up) / 6.0
-        topcode._unit = self.readUnit(topcode)
-        topcode._code = -1
-        if topcode._unit < 0:
+        topcode.x = cx
+        topcode.x += (right - left) / 6.0
+        topcode.y = cy
+        topcode.y += (down - up) / 6.0
+        topcode.unit = self.readUnit(topcode)
+        topcode.code = -1
+        if topcode.unit < 0:
             return -1
 
         c: int = 0
