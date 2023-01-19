@@ -70,6 +70,11 @@ class TopCode(object):
         TopCode.__init__(self)
         self.code = code
 
+
+    @property
+    def ARC(self) -> float:
+        return TopCode._ARC
+    
     @property
     def code(self) -> int:
         """
@@ -123,6 +128,11 @@ class TopCode(object):
         This gets set automatically by the decode() function.
         """
         return self._x
+    
+    @x.setter
+    def x(self, x:float):
+        if not (x == None):
+            self._x = x
 
     @property
     def y(self) -> float:
@@ -131,6 +141,11 @@ class TopCode(object):
         This gets set automatically by the decode() function.
         """
         return self._y
+    
+    @y.setter
+    def y(self, y:float):
+        if not (y == None):
+            self._y = y
 
     def setLocation(self, x: float, y: float):
         """Sets the x and y coordinates for the center point of the symbol"""
@@ -393,12 +408,12 @@ class TopCode(object):
         sweepa: float = -1 * self.orientation * 180 / math.pi
         r: float = self._width * 0.5 * self._unit
 
-        circ = Ellipsis2D = Ellipsis2D.fromFloat(x - r, y - r, r * 2, r * 2)
+        circ = Ellipsis2D = Ellipsis2D.fromFloat(self.x - r, self.y - r, r * 2, r * 2)
         g.setColor("white")
         g.fill(circ)
 
         for i in range(self._sectors, -1, -1):
-            arc.setArc(x - r, y - r, r * 2, r * 2, i * sweep + sweep, sweep, Arc2D.PIE)
+            arc.setArc(self.x - r, self.y - r, r * 2, r * 2, i * sweep + sweep, sweep, Arc2D.PIE)
             color: str = "white" if ((bits & 0x1) > 0) else "black"
             g.setColor(color)
             g.fill(arc)

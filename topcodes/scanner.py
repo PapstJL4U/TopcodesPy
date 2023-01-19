@@ -365,7 +365,7 @@ class Scanner(object):
         return self._preview
 
     @no_type_check
-    def annotate(self, g: object, scanner: Scanner) -> None:
+    def annotate(self, g: object, topcode: TopCode) -> None:
         """drawing method"""
         dx: float = 0.0
         dy: float = 0.0
@@ -373,19 +373,19 @@ class Scanner(object):
         sx: float = 0.0
         sy: float = 0.0
         bits: int = 0
-        for sector in range(self._sectors - 1, -1, -1):
-            dx = math.cos(self._ARC * sector + self._orientation)
-            dy = math.sin(self._ARC * sector + self._orientation)
+        for sector in range(topcode.sectors - 1, -1, -1):
+            dx = math.cos(topcode.ARC * sector + topcode.orientation)
+            dy = math.sin(topcode.ARC * sector + topcode.orientation)
 
             # take 8 samples across the diameter of the symbol
 
             sample: int = 0
-            for i in range(3, self._width):
+            for i in range(3, topcode._width):
                 dist = ((float)(i - 3.5)) * self._unit
 
-                sx = round(self.x + dx * dist)
-                sy = round(self.y + dy * dist)
-                sample = scanner.getBW3x3(sx, sy)
+                sx = round(topcode.x + dx * dist)
+                sy = round(topcode.y + dy * dist)
+                sample = self.getBW3x3(sx, sy)
 
                 #
                 # PSEUDO CODE
