@@ -20,7 +20,7 @@ bottom = sg.Column(
 mid = sg.Column(
     [
         [
-            sg.Button("Find Codes", key="-findCode-"),
+            sg.Button("Find Codes", key="-findCode-", disabled=True),
             sg.Button("Highlight Codes", key="-highlight-"),
             sg.Button("Show Threshold", key="-treshold-"),
         ],
@@ -30,9 +30,10 @@ mid = sg.Column(
                 target="-path-",
                 file_types=file_types,
                 initial_folder="topcodes/test_img/",
-                key="-browse-"
+                key="-browse-",
+                enable_events=True
             ),
-            sg.Input("", disabled=True, key="-path-",  enable_events=True,),
+            sg.Input("", disabled=True, key="-path-",  enable_events=True),
         ],
     ]
 )
@@ -48,12 +49,11 @@ myScanner: Scanner = Scanner()
 """
 Functions
 """
-test = r"topcodes/test_img/341.png"
 
-
-def findTopCodes() -> None:
-    codes: list = myScanner.scan_by_filename(test)
+def findTopCodes(path:str = "") -> None:
+    codes: list = myScanner.scan_by_filename(path)
     output = window["-output-"]
+    output.print("--Codes--")
     for code in codes:
         output.print(code)
 
@@ -73,8 +73,9 @@ while True:
     if event == "-close-":
         pass
     if event == "-findCode-":
-        findTopCodes()
+        findTopCodes(values["-path-"])
     if event == "-path-":
+        window["-findCode-"].update(disabled=False)
         loadImage(values["-path-"])
 
 

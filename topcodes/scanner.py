@@ -202,7 +202,7 @@ class Scanner(object):
                 summ += a - (summ // s)
 
                 """
-                Cimpare the average sum to current
+                Compare the average sum to current
                 pixel to decide black or white
                 """
                 f: float = 0.85
