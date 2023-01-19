@@ -77,7 +77,7 @@ public class TopCodePrinter extends JPanel implements Printable, KeyListener {
             codes[index].draw(g);
             g.setColor(Color.BLACK);
             g.drawString(String.valueOf(codes[index].getCode()),
-                         x - inches(0.1), y + inches(0.55));
+                        x - inches(0.1), y + inches(0.55));
             x += inches(1);
             index++;
             if (index >= codes.length) return;
@@ -131,7 +131,7 @@ public class TopCodePrinter extends JPanel implements Printable, KeyListener {
       Graphics2D g = (Graphics2D)graphics;
 
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                         RenderingHints.VALUE_ANTIALIAS_ON);
+                        RenderingHints.VALUE_ANTIALIAS_ON);
 
       g.setColor(Color.white);
       g.fillRect(0, 0, PAGE_WIDTH, PAGE_HEIGHT * PAGE_COUNT);

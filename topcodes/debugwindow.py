@@ -1,5 +1,4 @@
-"""
-"""
+"""Small GUI to find out if this stuff is working"""
 import PySimpleGUI as sg
 from scanner import Scanner
 
@@ -49,7 +48,6 @@ myScanner: Scanner = Scanner()
 """
 Functions
 """
-
 def findTopCodes(path:str = "") -> None:
     codes: list = myScanner.scan_by_filename(path)
     output = window["-output-"]

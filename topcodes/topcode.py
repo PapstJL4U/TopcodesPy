@@ -4,26 +4,21 @@ from typing import no_type_check
 
 """
 Original JAVA
-/**
- * TopCodes (Tangible Object Placement Codes) are black-and-white
- * circular fiducials designed to be recognized quickly by
- * low-resolution digital cameras with poor optics. The TopCode symbol
- * format is based on the open SpotCode format:
- *
- *  http://www.highenergymagic.com/spotcode/symbols.html
- *
- * Each TopCode encodes a 13-bit number in a single data ring on the
- * outer edge of the symbol. Zero is represented by a black sector and
- * one is represented by a white sector.
- *
- * @author Michael Horn
- * @version $Revision: 1.4 $, $Date: 2007/10/15 13:12:30 $
- */
+
+TopCodes (Tangible Object Placement Codes) are black-and-white
+circular fiducials designed to be recognized quickly by
+low-resolution digital cameras with poor optics. The TopCode symbol
+format is based on the open SpotCode format:
+http://www.highenergymagic.com/spotcode/symbols.html
+Each TopCode encodes a 13-bit number in a single data ring on the
+outer edge of the symbol. Zero is represented by a black sector and
+one is represented by a white sector.
+@author Michael Horn
+@version $Revision: 1.4 $, $Date: 2007/10/15 13:12:30 $
+
+
+python version by PapstJL4U
 """
-_author = "PapstJL4U"
-_version = "0.1"
-
-
 class TopCode(object):
     # Number of sectors in the data ring
     _sectors: int = 13
@@ -182,7 +177,7 @@ class TopCode(object):
         """
         rotateLowest tries each of the possible rotations and returns the lowest
         """
-        min: int = bits
+        minimum: int = bits
         mask: int = 0x1FFF
 
         """
@@ -195,12 +190,12 @@ class TopCode(object):
 
         for i in range(1, TopCode._sectors + 1):
             bits = ((bits << 1) & mask) | (bits >> (TopCode._sectors - 1))
-            if bits < min:
-                min = bits
+            if bits < minimum:
+                minimum = bits
                 self._orientation = i * -1 * TopCode._ARC
 
         self._orientation += arca
-        return min
+        return minimum
 
     def checksum(self, bits: int) -> bool:
         """Only Codes with a checksum of 5 are valid"""
@@ -242,7 +237,7 @@ class TopCode(object):
                 self.y - r,
                 r * 2,
                 r * 2,
-                i * sweep + sweep,
+                i * sweep + sweepa,
                 sweep,
                 Arc2D.PIE,
             )

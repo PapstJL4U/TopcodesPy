@@ -7,7 +7,8 @@ pixel is tested as the center of a candidate TopCode.
  *
 author Michael Horn
 @version $Revision: 1.4 $, $Date: 2008/02/04 15:02:13 $
-python by PapstJL4U
+
+python version by PapstJL4U
 """
 from typing import no_type_check
 from PIL import Image

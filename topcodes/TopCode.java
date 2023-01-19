@@ -339,7 +339,7 @@ public class TopCode {
       for (int i=1; i<=SECTORS; i++) {
 
          bits = (((bits << 1) & mask) |
-                 (bits >> (SECTORS - 1)));
+               (bits >> (SECTORS - 1)));
          if (bits < min) { 
             min = bits;
             this.orientation = (i * -ARC);
