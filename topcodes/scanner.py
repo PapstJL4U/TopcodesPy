@@ -470,3 +470,72 @@ class Scanner(object):
                 else:
                     return u
         return -1
+    
+    def readCode(self, scanner: Scanner, unit: float, arca: float) -> int:
+        """
+        Attempts to decode the binary pixels of an image into a code
+
+        scanner - image scanner
+        unit - width of single ring (codes are 8 units wide)
+        arca - arc adjustment. rotation correction delta value
+        """
+        dx: float = 0.0
+        dy: float = 0.0
+        dist: float = 0.0
+        c: int = 0
+        sx: int = 0
+        sy: int = 0
+        bit: int = 0
+        bits: int = 0
+        self._code = -1
+
+        # count down from Sectors down to 0
+        for sector in range(TopCode._sectors - 1, -1, -1):
+            dx = math.cos(TopCode._ARC * sector + arca)
+            dy = math.sin(TopCode._ARC * sector + arca)
+
+            # Take 8 samples across the diameter of the symbol
+            for i in range(self._width):
+                dist = (i - 3.5) * self._unit
+                sx = round(self.x + dx * dist)
+                sy = round(self.y + dy * dist)
+                self._core[i] = scanner.getSample3x3(sx, sy)
+
+            # white rings
+            if (
+                (self._core[1] <= 128)
+                or (self._core[3] <= 128)
+                or (self._core[4] <= 128)
+                or (self._core[6] <= 128)
+            ):
+                return 0
+
+            # black ring
+            if (self._core[2] > 128) or (self._core[5] > 128):
+                return 0
+
+            # compute confidence in core sample
+            c += (
+                self._core[1]
+                + self._core[3]
+                + self._core[4]
+                + self._core[6]
+                + (0xFF - self._core[2])
+                + (0xFF - self._core[5])
+            )
+
+            # data rings
+            c += abs(self._core[7] * 2 - 0xFF)
+
+            # opposite data ring
+            c += 0xFF - abs(self._core[0] * 2 - 0xFF)
+
+            bit = 1 if self._core[7] > 128 else 0
+            bits <<= 1
+            bits += bit
+
+        if self.checksum(bits):
+            self._code = bits
+            return c
+        else:
+            return 0
