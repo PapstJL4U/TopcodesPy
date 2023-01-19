@@ -397,3 +397,75 @@ class Scanner(object):
                 g.setColor("red")
                 g.setStrike(Basicstroke(0.25))
                 g.draw(rect)
+
+
+    def readUnit(self, scanner: Scanner) -> float:
+        """
+        Determines the symbol's unit length by counting the number
+        of pixels between  the outer edges of the first black ring.
+        North, sount, east and west readins are taken and the average is returned
+        """
+        sx: int = round(self.x)
+        sy: int = round(self.y)
+        iwidth: int = scanner.imageW
+        iheight: int = scanner.imageH
+
+        whiteL: bool = True
+        whiteR: bool = True
+        whiteU: bool = True
+        whiteD = bool = True
+        sample: int = 0
+        distL: int = 0
+        distR: int = 0
+        distU: int = 0
+        distD: int = 0
+
+        for i in count(start=1):
+            if (
+                (sx - i < 1)
+                or (sx + i >= iwidth - 1)
+                or (sy - i < 1)
+                or (sy + i >= iheight - 1)
+                or (i > 100)
+            ):
+                return -1
+
+            # Left sample
+            sample = scanner.getBW3x3(sx - i, sy)
+            if distL <= 0:
+                if whiteL and (sample == 00):
+                    whiteL = False
+                elif (not whiteL) and (sample == 1):
+                    distL = i
+
+            # Right sample
+            sample = scanner.getBW3x3(sx + 1, sy)
+            if distR <= 0:
+                if whiteR and (sample == 0):
+                    whiteR = False
+            elif (not whiteR) and (sample == 1):
+                distR = i
+
+            # Up sample
+            sample = scanner.getBW3x3(sx, sy - i)
+            if distU <= 0:
+                if whiteU and (sample == 0):
+                    whiteU = False
+                elif (not whiteU) and (sample == 1):
+                    distU = i
+
+            # Down sample
+            sample = scanner.getBW3x3(sx, sy + i)
+            if distD <= 0:
+                if whiteD and (sample == 0):
+                    whiteD = False
+                elif (not whiteD) and (sample == 1):
+                    distD = i
+
+            if distR > 0 and distL > 0 and distU > 0 and distD > 0:
+                u: float = (distR + distL + distU + distD) / 8.0
+                if abs(distR + distL - distU - distD) > u:
+                    return -1
+                else:
+                    return u
+        return -1
