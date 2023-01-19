@@ -397,12 +397,12 @@ public class Scanner {
          for (int i=0; i<w; i++) {
             if ((data[k] & 0x2000000) > 0) {
                if ((data[k-1] & 0x2000000) > 0 &&
-                   (data[k+1] & 0x2000000) > 0 &&
-                   (data[k-w] & 0x2000000) > 0 &&
-                   (data[k+w] & 0x2000000) > 0) {
+                  (data[k+1] & 0x2000000) > 0 &&
+                  (data[k-w] & 0x2000000) > 0 &&
+                  (data[k+w] & 0x2000000) > 0) {
 /*
                if ((data[k-w] & 0x2000000) > 0 ||
-                   (data[k+w] & 0x2000000) > 0)) {
+                  (data[k+w] & 0x2000000) > 0)) {
 */                    
                   if (!overlaps(spots, i, j)) {
                      this.tcount++;

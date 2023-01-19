@@ -37,11 +37,11 @@ class Scanner(object):
     def __init__(self):
         pass
 
-    def scan_by_filename(self, filename: str = "") -> list:
+    def scan_by_filename(self, filename: str = "") -> list[TopCode]:
         with Image.open(filename) as im:
             return self.scan_image(im)
 
-    def scan_image(self, image: Image.Image) -> list:
+    def scan_image(self, image: Image.Image) -> list[TopCode]:
         """Scan the given image and return a list of all topcodes"""
         self._image = image
         # self._preview = None
@@ -58,7 +58,8 @@ class Scanner(object):
         self._threshold()
         return self._findCodes()
 
-    def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list:
+    def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list[TopCode]:
+        """untested java -> python image->pillow"""
         self._width = width
         self._height = height
         self._data = rgb
@@ -583,7 +584,7 @@ class Scanner(object):
         maxa: float = 0
         maxu: float = 0
         """
-        Try different uit and arc adjustments, 
+        Try different unit and arc adjustments, 
         save the one that produces a maximum confidence reading...
         """
         for u in range(-2, 3):

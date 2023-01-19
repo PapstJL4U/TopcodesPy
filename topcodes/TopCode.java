@@ -194,8 +194,8 @@ public class TopCode {
    public int decode(Scanner scanner, int cx, int cy) {
 
       int up = (scanner.ydist(cx, cy, -1) +
-                scanner.ydist(cx - 1, cy, -1) +
-                scanner.ydist(cx + 1, cy, -1));
+               scanner.ydist(cx - 1, cy, -1) +
+               scanner.ydist(cx + 1, cy, -1));
 
       int down = (scanner.ydist(cx, cy, 1) +
                   scanner.ydist(cx - 1, cy, 1) +
@@ -207,8 +207,8 @@ public class TopCode {
 
 
       int right = (scanner.xdist(cx, cy, 1) +
-                   scanner.xdist(cx, cy - 1, 1) +
-                   scanner.xdist(cx, cy + 1, 1));
+                  scanner.xdist(cx, cy - 1, 1) +
+                  scanner.xdist(cx, cy + 1, 1));
 
       this.x = cx;
       this.y = cy;
@@ -234,7 +234,7 @@ public class TopCode {
             arca = a * ARC * 0.1f;
             c = readCode(scanner,
                          unit + (unit * 0.05f * u),
-                         arca);
+                        arca);
             if (c > maxc) { 
                maxc = c;
                maxa = arca;
@@ -393,8 +393,8 @@ public class TopCode {
 
       for (int i=1; true; i++) {
          if (sx - i < 1 || sx + i >= iwidth - 1 ||
-             sy - i < 1 || sy + i >= iheight - 1 ||
-             i > 100) {
+            sy - i < 1 || sy + i >= iheight - 1 ||
+            i > 100) {
             return -1;
          }
 
