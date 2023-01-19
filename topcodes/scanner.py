@@ -11,6 +11,7 @@ python by PapstJL4U
 """
 from typing import no_type_check
 from PIL import Image
+from itertools import count
 import math as math
 
 
@@ -399,16 +400,16 @@ class Scanner(object):
                 g.draw(rect)
 
 
-    def readUnit(self, scanner: Scanner) -> float:
+    def readUnit(self, topcode: TopCode) -> float:
         """
         Determines the symbol's unit length by counting the number
         of pixels between  the outer edges of the first black ring.
         North, sount, east and west readins are taken and the average is returned
         """
-        sx: int = round(self.x)
-        sy: int = round(self.y)
-        iwidth: int = scanner.imageW
-        iheight: int = scanner.imageH
+        sx: int = round(topcode.x)
+        sy: int = round(topcode.y)
+        iwidth: int = self.imageW
+        iheight: int = self.imageH
 
         whiteL: bool = True
         whiteR: bool = True
@@ -431,7 +432,7 @@ class Scanner(object):
                 return -1
 
             # Left sample
-            sample = scanner.getBW3x3(sx - i, sy)
+            sample = self.getBW3x3(sx - i, sy)
             if distL <= 0:
                 if whiteL and (sample == 00):
                     whiteL = False
@@ -439,7 +440,7 @@ class Scanner(object):
                     distL = i
 
             # Right sample
-            sample = scanner.getBW3x3(sx + 1, sy)
+            sample = self.getBW3x3(sx + 1, sy)
             if distR <= 0:
                 if whiteR and (sample == 0):
                     whiteR = False
@@ -447,7 +448,7 @@ class Scanner(object):
                 distR = i
 
             # Up sample
-            sample = scanner.getBW3x3(sx, sy - i)
+            sample = self.getBW3x3(sx, sy - i)
             if distU <= 0:
                 if whiteU and (sample == 0):
                     whiteU = False
@@ -455,7 +456,7 @@ class Scanner(object):
                     distU = i
 
             # Down sample
-            sample = scanner.getBW3x3(sx, sy + i)
+            sample = self.getBW3x3(sx, sy + i)
             if distD <= 0:
                 if whiteD and (sample == 0):
                     whiteD = False

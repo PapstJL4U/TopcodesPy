@@ -1,7 +1,7 @@
 """Describes the TopCodes"""
 import math as math
 from scanner import Scanner
-from itertools import count
+
 from typing import no_type_check
 
 """
