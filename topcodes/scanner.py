@@ -384,6 +384,7 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
+                    
                 self._preview.putpixel(xy=(i, j), value=pixel)
 
         return self._preview
@@ -397,7 +398,7 @@ class Scanner(object):
         sx: float = 0.0
         sy: float = 0.0
         bits: int = 0
-        for sector in range(topcode.sectors - 1, -1, -1):
+        for sector in range(topcode.SECTORS - 1, -1, -1):
             dx = math.cos(topcode.ARC * sector + topcode.orientation)
             dy = math.sin(topcode.ARC * sector + topcode.orientation)
 
