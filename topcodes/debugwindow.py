@@ -48,6 +48,7 @@ layout = [[top], [mid], [bottom]]
 
 window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
 myScanner: Scanner = Scanner()
+myScanner.setMaxCodeDiameter(57)
 show_threshold: bool = False
 """
 Functions

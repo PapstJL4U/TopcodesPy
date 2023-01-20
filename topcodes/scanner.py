@@ -54,7 +54,7 @@ class Scanner(object):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
-            # the original java algorithm expects alpha + rgb, not rgb+alpha as the byte order
+            # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
 
@@ -71,8 +71,8 @@ class Scanner(object):
         self._width = width
         self._height = height
         self._data = rgb
-        # self._preview = None
         # unsure
+        #should be wrong, see above
         self._image = Image.fromarray(rgb, mode="RGB")
 
         self._threshold()
@@ -191,7 +191,7 @@ class Scanner(object):
             (alternating left-2-right, right-2-left)
             """
             k = 0 if (j % 2 == 0) else (self._width - 1)
-            k += j * self._width
+            k += (j * self._width)
 
             for i in range(self._width):
                 """
@@ -255,7 +255,6 @@ class Scanner(object):
                         b2 = 1
                     else:
                         w1 += 1
-
                 # on second black region
                 elif level == 3:
                     if a == 0:
@@ -300,8 +299,9 @@ class Scanner(object):
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
         k: int = self._width * 2
-        for j in range(self._height - 2):
+        for j in range(2,self._height - 2):
             for i in range(self._width):
+                temp = self._data[k] & 0x2000000
                 if (self._data[k] & 0x2000000) > 0:
                     if (
                         (self._data[k - 1] & 0x2000000) > 0
