@@ -48,14 +48,22 @@ class Scanner(object):
         # self._preview = None
         self._width = image.width
         self._height = image.height
-        LOP = list(image.convert("RGB").getdata())
+        LOP = list(image.convert("RGBA").getdata())
         self._data = [0] * len(LOP)
         for i in range(len(LOP)):
-            r, g, b = LOP[i]
-            # rgb = 65536 * r + 256 * g + b
+            r, g, b, alpha = LOP[i]
+            # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
-            pixel: int = 0x10000 * r + 0x100 * g + b
+            #the original java algorithm expects alpha + rgb, not rgb+alpha as the byte order 
+            pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
+
+        #debugging
+        with open("tops_py.int","w") as f:
+            for pixel in self._data:
+                f.write(format(pixel, 'b')+"\n")
+
+
         self._threshold()
         return self._findCodes()
 
@@ -203,6 +211,13 @@ class Scanner(object):
                 """
                 summ += a - (summ // s)
 
+                """
+                Factor in sum from the previous row
+                """                
+                if (k >= self._width): 
+                    threshold = (summ + (self._data[k-self._width] & 0xffffff)) // (2*s)
+                else:
+                    threshold = summ // s
                 """
                 Compare the average sum to current
                 pixel to decide black or white

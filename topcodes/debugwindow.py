@@ -20,8 +20,8 @@ mid = sg.Column(
     [
         [
             sg.Button("Find Codes", key="-findCode-", disabled=True),
-            sg.Button("Highlight Codes", key="-highlight-"),
-            sg.Button("Show Threshold", key="-treshold-")
+            sg.Button("Highlight Codes", key="-highlight-", disabled=True),
+            sg.Button("Show Threshold", key="-threshold-", disabled=True)
         ],
         [
             sg.FileBrowse(
@@ -73,6 +73,8 @@ while True:
         findTopCodes(values["-path-"])
     if event == "-path-":
         window["-findCode-"].update(disabled=False)
+        window["-highlight-"].update(disabled=False)
+        window["-threshold-"].update(disabled=False)
         loadImage(values["-path-"])
 
 
