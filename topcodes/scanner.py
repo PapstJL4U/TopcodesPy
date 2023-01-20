@@ -58,13 +58,13 @@ class Scanner(object):
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
 
+        self._threshold()
         #debugging
-        with open("tops_py.int","w") as f:
+        with open("tops_adapt_py.int","w") as f:
             for pixel in self._data:
                 f.write(format(pixel, 'b')+"\n")
 
 
-        self._threshold()
         return self._findCodes()
 
     def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list[TopCode]:
@@ -176,7 +176,7 @@ class Scanner(object):
         threshold: int = 128
         summ: int = 128
         s: int = 30
-        k: int = 0
+        k: int
         b1: int
         w1: int
         b2: int
@@ -186,7 +186,7 @@ class Scanner(object):
         self._ccount = 0
 
         for j in range(self._height):
-            level, w1, b2, level, dk = 0, 0, 0, 0, 0
+            level, b1, b2, w1= 0, 0, 0, 0
             """
             Process rows back and forth 
             (alternating left-2-right, right-2-left)
@@ -262,12 +262,13 @@ class Scanner(object):
                         b2 += 1
                     # this could be a top code
                     else:
-                        mask: int = 0
+                        mask: int
 
                         if (
                             b1 >= 2
-                            and b2 >= 22
+                            and b2 >= 2
                             and b1 <= self._maxu
+                            and b2 <= self._maxu
                             and w1 <= (self._maxu + self._maxu)
                             and abs(b1 + b2 - w1) <= (b1 + b2)
                             and abs(b1 + b2 - w1) <= w1
@@ -283,7 +284,7 @@ class Scanner(object):
                                 dk = k + dk
 
                             self._data[dk - 1] |= mask
-                            self._data[dk] >= mask
+                            self._data[dk] |= mask
                             self._data[dk + 1] |= mask
                             self._ccount += 3  # count candidate codes
 
@@ -291,7 +292,8 @@ class Scanner(object):
                         w1 = 1
                         b2 = 0
                         level = 2
-            k += 1 if (j % 2 == 0) else -1
+                
+                k += 1 if (j % 2 == 0) else -1
 
     def _findCodes(self) -> list[TopCode]:
         self._tcount = 0
