@@ -1,6 +1,8 @@
 """Small GUI to find out if this stuff is working"""
 import PySimpleGUI as sg
 from scanner import Scanner
+import base64
+from io import BytesIO
 
 """
 Layout
@@ -21,7 +23,7 @@ mid = sg.Column(
         [
             sg.Button("Find Codes", key="-findCode-", disabled=True),
             sg.Button("Highlight Codes", key="-highlight-", disabled=True),
-            sg.Button("Show Threshold", key="-threshold-", disabled=True)
+            sg.Button("Show Threshold", key="-threshold-", disabled=True),
         ],
         [
             sg.FileBrowse(
@@ -30,25 +32,29 @@ mid = sg.Column(
                 file_types=file_types,
                 initial_folder="topcodes/test_img/",
                 key="-browse-",
-                enable_events=True
+                enable_events=True,
             ),
-            sg.Input("", disabled=True, key="-path-",  enable_events=True, expand_x=True),
+            sg.Input(
+                "", disabled=True, key="-path-", enable_events=True, expand_x=True
+            ),
         ],
-    ], expand_x=True
+    ],
+    expand_x=True,
 )
 
-top = sg.Column(
-    [[sg.Image(source=r"topcodes/default.png", key="-image-")]]
-)
+top = sg.Column([[sg.Image(source=r"topcodes/default.png", key="-image-")]])
 
 layout = [[top], [mid], [bottom]]
 
 window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
 myScanner: Scanner = Scanner()
+show_threshold: bool = False
 """
 Functions
 """
-def findTopCodes(path:str = "") -> None:
+
+
+def findTopCodes(path: str = "") -> None:
     codes: list = myScanner.scan_by_filename(path)
     output = window["-output-"]
     output.print("--Codes--")
@@ -76,6 +82,15 @@ while True:
         window["-highlight-"].update(disabled=False)
         window["-threshold-"].update(disabled=False)
         loadImage(values["-path-"])
+    if event == "-threshold-":
+        if show_threshold:
+            image = myScanner.getPreview()
+            buffered = BytesIO()
+            image.save(buffered, format="JPEG")
+            img_str = base64.b64encode(buffered.getvalue())
+            window["-image-"].update(source=img_str)
+        else:
+            loadImage(values["-path-"])
 
 
 window.close()

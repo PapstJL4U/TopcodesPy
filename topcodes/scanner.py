@@ -54,16 +54,15 @@ class Scanner(object):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
-            #the original java algorithm expects alpha + rgb, not rgb+alpha as the byte order 
+            # the original java algorithm expects alpha + rgb, not rgb+alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
 
         self._threshold()
-        #debugging
-        with open("tops_adapt_py.int","w") as f:
+        # debugging
+        with open("tops_adapt_py.int", "w") as f:
             for pixel in self._data:
-                f.write(format(pixel, 'b')+"\n")
-
+                f.write(format(pixel, "b") + "\n")
 
         return self._findCodes()
 
@@ -169,24 +168,24 @@ class Scanner(object):
         EuroPARC Technical Report EPC-93-110
         """
         pixel: int = 0
-        r: int
-        g: int
-        b: int
-        a: int
+        r: int = 0
+        g: int = 0
+        b: int = 0
+        a: int = 0
         threshold: int = 128
         summ: int = 128
         s: int = 30
-        k: int
-        b1: int
-        w1: int
-        b2: int
-        level: int
-        dk: int
+        k: int = 0
+        b1: int = 0
+        w1: int = 0
+        b2: int = 0
+        level: int = 0
+        dk: int = 0
 
         self._ccount = 0
 
         for j in range(self._height):
-            level, b1, b2, w1= 0, 0, 0, 0
+            level, b1, b2, w1 = 0, 0, 0, 0
             """
             Process rows back and forth 
             (alternating left-2-right, right-2-left)
@@ -199,7 +198,6 @@ class Scanner(object):
                 Calculate pixen intensity (0-255)
                 """
                 pixel = self._data[k]
-                # r, g, b = pixel
                 r = (pixel >> 16) & 0xFF
                 g = (pixel >> 8) & 0xFF
                 b = pixel & 0xFF
@@ -213,9 +211,11 @@ class Scanner(object):
 
                 """
                 Factor in sum from the previous row
-                """                
-                if (k >= self._width): 
-                    threshold = (summ + (self._data[k-self._width] & 0xffffff)) // (2*s)
+                """
+                if k >= self._width:
+                    threshold = (summ + (self._data[k - self._width] & 0xFFFFFF)) // (
+                        2 * s
+                    )
                 else:
                     threshold = summ // s
                 """
@@ -292,7 +292,7 @@ class Scanner(object):
                         w1 = 1
                         b2 = 0
                         level = 2
-                
+
                 k += 1 if (j % 2 == 0) else -1
 
     def _findCodes(self) -> list[TopCode]:
@@ -369,7 +369,7 @@ class Scanner(object):
         """
         if self._preview != None:
             return self._preview
-        self._preview = Image.new(mode="RGB", size=(self._width, self._height))
+        self._preview = Image.new(mode="RGBA", size=(self._width, self._height))
 
         pixel: int = 0
         k: int = 0
@@ -384,7 +384,7 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
-                    
+
                 self._preview.putpixel(xy=(i, j), value=pixel)
 
         return self._preview

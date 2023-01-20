@@ -19,6 +19,8 @@ one is represented by a white sector.
 
 python version by PapstJL4U
 """
+
+
 class TopCode(object):
     # Number of sectors in the data ring
     _sectors: int = 13
