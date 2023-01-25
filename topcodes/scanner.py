@@ -131,14 +131,14 @@ class Scanner(object):
         if x < 1 or x > (self._width - 2) or y < 1 or y > (self._height - 2):
             return 0
         pixel: int = 0
-        sum: int = 0
+        summ: int = 0
         for j in range(y - 1, y + 1, 1):
             for i in range(x - 1, x + 1, 1):
                 pixel = self._data[j * self._width + i]
                 if (pixel & 0x01000000) > 0:
-                    sum += 0xFF
+                    summ += 0xFF
 
-        return sum // 9
+        return summ // 9
 
     def getBW3x3(self, x: int, y: int) -> int:
         """
@@ -149,12 +149,12 @@ class Scanner(object):
             return 0
 
         pixel: int = 0
-        sum: int = 0
+        summ: int = 0
         for j in range(y - 1, y + 1, 1):
             for i in range(x - 1, x + 1, 1):
                 pixel = self._data[j * self._width + i]
-                sum += (pixel >> 24) & 0x01
-        if sum >= 5:
+                summ += (pixel >> 24) & 0x01
+        if summ >= 5:
             return 1
         else:
             return 0
