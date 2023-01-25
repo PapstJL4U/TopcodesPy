@@ -133,8 +133,8 @@ class Scanner(object):
             return 0
         pixel: int = 0
         summ: int = 0
-        for j in range(y - 1, y + 1, 1):
-            for i in range(x - 1, x + 1, 1):
+        for j in range(y - 1, y + 2, 1):
+            for i in range(x - 1, x + 2, 1):
                 pixel = self._data[j * self._width + i]
                 if (pixel & 0x01000000) > 0:
                     summ += 0xFF
@@ -151,8 +151,8 @@ class Scanner(object):
 
         pixel: int = 0
         summ: int = 0
-        for j in range(y - 1, y + 1, 1):
-            for i in range(x - 1, x + 1, 1):
+        for j in range(y - 1, y + 2, 1):
+            for i in range(x - 1, x + 2, 1):
                 pixel = self._data[j * self._width + i]
                 summ += (pixel >> 24) & 0x01
         if summ >= 5:
@@ -438,7 +438,7 @@ class Scanner(object):
         whiteL: bool = True
         whiteR: bool = True
         whiteU: bool = True
-        whiteD = bool = True
+        whiteD: bool = True
         sample: int = 0
         distL: int = 0
         distR: int = 0
@@ -458,18 +458,18 @@ class Scanner(object):
             # Left sample
             sample = self.getBW3x3(sx - i, sy)
             if distL <= 0:
-                if whiteL and (sample == 00):
+                if whiteL and (sample == 0):
                     whiteL = False
                 elif (not whiteL) and (sample == 1):
                     distL = i
 
             # Right sample
-            sample = self.getBW3x3(sx + 1, sy)
+            sample = self.getBW3x3(sx + i, sy)
             if distR <= 0:
                 if whiteR and (sample == 0):
                     whiteR = False
-            elif (not whiteR) and (sample == 1):
-                distR = i
+                elif (not whiteR) and (sample == 1):
+                    distR = i
 
             # Up sample
             sample = self.getBW3x3(sx, sy - i)
@@ -619,8 +619,8 @@ class Scanner(object):
                     maxu = topcode.unit + (topcode.unit * 0.05 * u)
 
         if maxc > 0:
-            self._unit = maxu
-            self.readCode(topcode, topcode._unit, maxa)
-            self.code = topcode.rotateLowest(topcode.code, maxa)
+            topcode.unit = maxu
+            self.readCode(topcode, topcode.unit, maxa)
+            topcode.code = topcode.rotateLowest(topcode.code, maxa)
 
-        return self.code
+        return topcode.code

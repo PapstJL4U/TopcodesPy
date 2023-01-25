@@ -56,7 +56,7 @@ class TopCode(object):
         # Vertical center of a symbol
         self._y: float = 0.0
         # Buffer used to decode sectors
-        self._core: list[int] = [] * TopCode._width
+        self._core: list[int] = [0] * self._width
 
     def by_value(self, code: int = 0):
         """
