@@ -33,6 +33,7 @@ class Scanner(object):
     # number of candidates tested
     _tcount: int = 0
     # maximum width of a topcode unit in pixel
+    # very important to find codes
     _maxu: int = 80
 
     def __init__(self):
@@ -301,7 +302,6 @@ class Scanner(object):
         k: int = self._width * 2
         for j in range(2,self._height - 2):
             for i in range(self._width):
-                temp = self._data[k] & 0x2000000
                 if (self._data[k] & 0x2000000) > 0:
                     if (
                         (self._data[k - 1] & 0x2000000) > 0
@@ -360,6 +360,7 @@ class Scanner(object):
             if start + sample == 1:
                 value = (i - x) if d > 0 else (x - i)
                 return value
+            i += d
         return -1
 
     def getPreview(self) -> Image.Image:

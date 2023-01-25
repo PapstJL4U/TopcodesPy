@@ -68,7 +68,7 @@ class TopCode(object):
     @property
     def unit(self) -> float:
         # The width of a single ring.
-        return TopCode._unit
+        return self._unit
 
     @unit.setter
     def unit(self, unit: float):
