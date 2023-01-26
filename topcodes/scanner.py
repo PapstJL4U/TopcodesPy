@@ -397,7 +397,7 @@ class Scanner(object):
                 
                 self._preview.putpixel(xy=(i, j), value=(r,g,b,a))
                 k+=1
-
+                
         return self._preview
 
     @no_type_check

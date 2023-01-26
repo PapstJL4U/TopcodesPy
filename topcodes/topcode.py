@@ -1,7 +1,7 @@
 """Describes the TopCodes"""
 import math as math
 from typing import no_type_check
-
+from PIL import Image, ImageDraw
 """
 Original JAVA
 
@@ -214,52 +214,47 @@ class TopCode(object):
         return left <= right
 
     @no_type_check
-    def draw(self, g: object) -> None:
-        """Draws heis spotcode with its current location
+    def draw(self, im: Image.Image) -> None:
+        """Draws this spotcode with its current location
         and orientation"""
 
         bits: int = self.code
-        #
-        # PSEUDO CODE
-        # Look up JAVA components for this
-        arc: Arc2D = Arc2D.fromFloat(Arc2D.PIE)
+
         sweep: float = 360.0 / self.SECTORS
         sweepa: float = -1 * self.orientation * 180 / math.pi
         r: float = self._width * 0.5 * self._unit
+        r_ceil = math.ceil(r)
+        #im = Image.new("RGBA", (2*r_ceil,2*r_ceil))
+        draw = ImageDraw.Draw(im)
 
-        circ = Ellipsis2D = Ellipsis2D.fromFloat(self.x - r, self.y - r, r * 2, r * 2)
-        g.setColor("white")
-        g.fill(circ)
+        #draw.rectangle([0,0,500,500], fill=(128,128,128))
+
+        box = [self.x - r_ceil, self.y - r_ceil, self.x + r_ceil, self.y + r_ceil]
+        draw.ellipse(box, fill=(255,255,255), outline=None, width=1)
 
         for i in range(self.SECTORS, -1, -1):
-            arc.setArc(
-                self.x - r,
-                self.y - r,
-                r * 2,
-                r * 2,
-                i * sweep + sweepa,
-                sweep,
-                Arc2D.PIE,
-            )
-            color: str = "white" if ((bits & 0x1) > 0) else "black"
-            g.setColor(color)
-            g.fill(arc)
+            color = (255,255,255) if ((bits & 0x1) > 0) else (0,0,0)
+            start = i * sweep + sweepa
+            end = sweep
+            draw.arc(box, end, start, fill=color, width=0)
             bits >>= 1
 
         r -= self._unit
-        g.setColor("white")
-        circ.setFrame(self.x - r, self.y - r, r * 2, r * 2)
-        g.fill(circ)
+        color = (255,255,255)
+        box = [self.x - r, self.y - r, r * 2, r * 2]
+        draw.ellipse(box, fill=color, outline=None, width=1)
 
         r -= self._unit
-        g.setColor("black")
-        circ.setFrame(self.x - r, self.y - r, r * 2, r * 2)
-        g.fill(circ)
+        color = (0,0,0)
+        box = [self.x - r, self.y - r, r * 2, r * 2]
+        draw.ellipse(box, fill=color, outline=None, width=1)
 
         r -= self._unit
-        g.setColor("white")
-        circ.setFrame(self.x - r, self.y - r, r * 2, r * 2)
-        g.fill(circ)
+        color = (255,255,255)
+        box = [self.x - r, self.y - r, r * 2, r * 2]
+        draw.ellipse(box, fill=color, outline=None, width=1)
+
+        im.save("code"+str(self.code)+".png", format="PNG")
 
     def printBits(self, bits: int):
         """
