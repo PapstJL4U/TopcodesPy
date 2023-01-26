@@ -91,8 +91,10 @@ while True:
             image.save(buffered, format="PNG")
             img_str = base64.b64encode(buffered.getvalue())
             window["-image-"].update(data=img_str)
+            show_threshold = True
         else:
             loadImage(values["-path-"])
+            show_threshold = False
 
 
 window.close()
