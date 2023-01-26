@@ -28,6 +28,8 @@ class Scanner(object):
     _data: list[int] = []
     # Binary view of the image
     _preview: Image.Image
+    # reduce processing if done already via check
+    _preview_exists = False
     # candidate code count
     _ccount: int = 0
     # number of candidates tested
@@ -369,15 +371,16 @@ class Scanner(object):
         For debugging purposes, create a black and white image
         that shows the result of adaptive thresholding
         """
-        if self._preview != None:
+        if self._preview_exists == True:
             return self._preview
         self._preview = Image.new(mode="RGBA", size=(self._width, self._height))
+        self._preview_exists = True
 
         pixel: int = 0
         k: int = 0
         for j in range(self._height):
             for i in range(self._width):
-                pixel = self._data[k + 1] >> 24
+                pixel = self._data[k] >> 24
                 if pixel == 0:
                     pixel == 0xFF000000
                 elif pixel == 1:
@@ -386,8 +389,14 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
-
-                self._preview.putpixel(xy=(i, j), value=pixel)
+                
+                b :int= (pixel & 0xFF)
+                g :int= (pixel >> 8) & 0xFF
+                r :int= (pixel >> 16) & 0xFF
+                a :int= (pixel >> 24) & 0xFF
+                
+                self._preview.putpixel(xy=(i, j), value=(r,g,b,a))
+                k+=1
 
         return self._preview
 

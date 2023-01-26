@@ -149,8 +149,7 @@ class TopCode(object):
 
     @x.setter
     def x(self, x: float):
-        if not (x == None):
-            self._x = x
+        self._x = x
 
     @property
     def y(self) -> float:
@@ -162,8 +161,7 @@ class TopCode(object):
 
     @y.setter
     def y(self, y: float):
-        if not (y == None):
-            self._y = y
+        self._y = y
 
     def setLocation(self, x: float, y: float):
         """Sets the x and y coordinates for the center point of the symbol"""
@@ -283,8 +281,8 @@ class TopCode(object):
 def generateCodes() -> list[TopCode]:
     n: int = 99
     base: int = 0
-    tcodes: list[TopCode] = [] * n
     code: TopCode = TopCode()
+    tcodes: list[TopCode] = [code] * n
 
     bits: int = 0
     count: int = 0
@@ -296,8 +294,9 @@ def generateCodes() -> list[TopCode]:
         if (bits == base) and code.checksum(bits):
             code.code = bits
             code.orientation = 0
-            tcodes[count + 1] = code
+            tcodes[count] = code
             code = TopCode()
+            count+=1
 
         base += 1
 

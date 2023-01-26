@@ -2,6 +2,7 @@
 import PySimpleGUI as sg
 from scanner import Scanner
 import base64
+from PIL import Image
 from io import BytesIO
 
 """
@@ -67,7 +68,6 @@ def findTopCodes(path: str = "") -> None:
 def loadImage(path: str = "") -> None:
     window["-image-"].update(source=path)
 
-
 while True:
     event, values = window.read()
     if (
@@ -84,12 +84,13 @@ while True:
         window["-threshold-"].update(disabled=False)
         loadImage(values["-path-"])
     if event == "-threshold-":
-        if show_threshold:
-            image = myScanner.getPreview()
+        if not show_threshold:
+            image: Image.Image = myScanner.getPreview()
             buffered = BytesIO()
-            image.save(buffered, format="JPEG")
+            image.save("threshold.png")
+            image.save(buffered, format="PNG")
             img_str = base64.b64encode(buffered.getvalue())
-            window["-image-"].update(source=img_str)
+            window["-image-"].update(data=img_str)
         else:
             loadImage(values["-path-"])
 
