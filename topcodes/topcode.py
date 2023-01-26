@@ -186,13 +186,13 @@ class TopCode(object):
         but there seems to be a positive bias
         that falls out oof the algorithm
         """
-        arca = arca_para - (TopCode._ARC * 0.65)
+        arca = arca_para - (self.ARC * 0.65)
 
         for i in range(1, self.SECTORS + 1):
             bits = ((bits << 1) & mask) | (bits >> (self.SECTORS - 1))
             if bits < minimum:
                 minimum = bits
-                self._orientation = i * -1 * TopCode._ARC
+                self._orientation = i * -1 * self.ARC
 
         self._orientation += arca
         return minimum
@@ -213,45 +213,42 @@ class TopCode(object):
         right: float = self._unit * self._unit
         return left <= right
 
-    @no_type_check
     def draw(self, im: Image.Image) -> None:
         """Draws this spotcode with its current location
         and orientation"""
 
         bits: int = self.code
-
         sweep: float = 360.0 / self.SECTORS
-        sweepa: float = -1 * self.orientation * 180 / math.pi
+        sweepa: float = self.orientation * (180 / math.pi)
         r: float = self._width * 0.5 * self._unit
         r_ceil = math.ceil(r)
         #im = Image.new("RGBA", (2*r_ceil,2*r_ceil))
         draw = ImageDraw.Draw(im)
 
         #draw.rectangle([0,0,500,500], fill=(128,128,128))
-
-        box = [self.x - r_ceil, self.y - r_ceil, self.x + r_ceil, self.y + r_ceil]
+        box = tuple([self.x - r_ceil, self.y - r_ceil, self.x + r_ceil, self.y + r_ceil])
         draw.ellipse(box, fill=(255,255,255), outline=None, width=1)
 
-        for i in range(self.SECTORS, -1, -1):
+        for i in range(self.SECTORS-1, -1, -1):
             color = (255,255,255) if ((bits & 0x1) > 0) else (0,0,0)
-            start = i * sweep + sweepa
-            end = sweep
-            draw.arc(box, end, start, fill=color, width=0)
+            start = i * sweep + sweepa - 90.0
+            end = start+sweep
+            draw.pieslice(box, start, end, fill=color, width=1)
             bits >>= 1
 
-        r -= self._unit
+        r -= self.unit
         color = (255,255,255)
-        box = [self.x - r, self.y - r, r * 2, r * 2]
+        box = [self.x - r, self.y - r, self.x + r, self.y + r]
         draw.ellipse(box, fill=color, outline=None, width=1)
 
-        r -= self._unit
+        r -= self.unit
         color = (0,0,0)
-        box = [self.x - r, self.y - r, r * 2, r * 2]
+        box = [self.x - r, self.y - r, self.x + r, self.y + r]
         draw.ellipse(box, fill=color, outline=None, width=1)
 
-        r -= self._unit
+        r -= self.unit
         color = (255,255,255)
-        box = [self.x - r, self.y - r, r * 2, r * 2]
+        box = [self.x - r, self.y - r, self.x + r, self.y + r]
         draw.ellipse(box, fill=color, outline=None, width=1)
 
         im.save("code"+str(self.code)+".png", format="PNG")
