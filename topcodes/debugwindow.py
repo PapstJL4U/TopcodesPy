@@ -60,7 +60,7 @@ def findTopCodes(path: str = "") -> None:
     output = window["-output-"]
     output.print("--Codes--")
     for code in codes:
-        output.print(code)
+        output.print(code.code)
     output.print("--Finished--")
 
 

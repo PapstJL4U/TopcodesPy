@@ -190,8 +190,8 @@ class TopCode(object):
         """
         arca = arca_para - (TopCode._ARC * 0.65)
 
-        for i in range(1, TopCode._sectors + 1):
-            bits = ((bits << 1) & mask) | (bits >> (TopCode._sectors - 1))
+        for i in range(1, self.SECTORS + 1):
+            bits = ((bits << 1) & mask) | (bits >> (self.SECTORS - 1))
             if bits < minimum:
                 minimum = bits
                 self._orientation = i * -1 * TopCode._ARC
@@ -202,7 +202,7 @@ class TopCode(object):
     def checksum(self, bits: int) -> bool:
         """Only Codes with a checksum of 5 are valid"""
         summ: int = 0
-        for i in range(self._sectors):
+        for i in range(self.SECTORS):
             summ += bits & 0x01
             bits = bits >> 1
         return summ == 5
@@ -225,7 +225,7 @@ class TopCode(object):
         # PSEUDO CODE
         # Look up JAVA components for this
         arc: Arc2D = Arc2D.fromFloat(Arc2D.PIE)
-        sweep: float = 360.0 / self._sectors
+        sweep: float = 360.0 / self.SECTORS
         sweepa: float = -1 * self.orientation * 180 / math.pi
         r: float = self._width * 0.5 * self._unit
 
@@ -233,7 +233,7 @@ class TopCode(object):
         g.setColor("white")
         g.fill(circ)
 
-        for i in range(self._sectors, -1, -1):
+        for i in range(self.SECTORS, -1, -1):
             arc.setArc(
                 self.x - r,
                 self.y - r,
@@ -268,7 +268,7 @@ class TopCode(object):
         Debug routine that prints the last 13 least significant bits
         of a integer
         """
-        for i in range(self._sectors - 1, -1, -1):
+        for i in range(self.SECTORS - 1, -1, -1):
             if ((bits >> i) & 0x01) == 1:
                 print(1)
             else:
