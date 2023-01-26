@@ -61,11 +61,11 @@ class Scanner(object):
 
         self._threshold()
         # debugging
-        
+
         with open("tops_adapt_py.int", "w") as f:
             for pixel in self._data:
                 f.write(format(pixel, "b") + "\n")
-        
+
         return self._findCodes()
 
     def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list[TopCode]:
@@ -74,7 +74,7 @@ class Scanner(object):
         self._height = height
         self._data = rgb
         # unsure
-        #should be wrong, see above
+        # should be wrong, see above
         self._image = Image.fromarray(rgb, mode="RGBA")
 
         self._threshold()
@@ -193,7 +193,7 @@ class Scanner(object):
             (alternating left-2-right, right-2-left)
             """
             k = 0 if (j % 2 == 0) else (self._width - 1)
-            k += (j * self._width)
+            k += j * self._width
 
             for i in range(self._width):
                 """
@@ -301,7 +301,7 @@ class Scanner(object):
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
         k: int = self._width * 2
-        for j in range(2,self._height - 2):
+        for j in range(2, self._height - 2):
             for i in range(self._width):
                 if (self._data[k] & 0x2000000) > 0:
                     if (
