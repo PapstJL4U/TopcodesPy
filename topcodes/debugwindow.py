@@ -94,6 +94,7 @@ while True:
         window["-highlight-"].update(disabled=False)
         window["-threshold-"].update(disabled=False)
         loadImage(values["-path-"])
+
     if event == "-threshold-":
         if not show_threshold:
             image: Image.Image = myScanner.getPreview()
@@ -108,6 +109,7 @@ while True:
             loadImage(values["-path-"])
             window["-threshold-"].update(text="Show Threshold")
             show_threshold = False   
+            
     if event == "-highlight-":
         if not show_topcodes:
             drawCodes(values["-path-"])
