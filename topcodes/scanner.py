@@ -390,15 +390,15 @@ class Scanner(object):
                     pixel == 0xFF00FF00
                 elif pixel == 7:
                     pixel == 0xFFFF0000
-                
-                b :int= (pixel & 0xFF)
-                g :int= (pixel >> 8) & 0xFF
-                r :int= (pixel >> 16) & 0xFF
-                a :int= (pixel >> 24) & 0xFF
-                
-                self._preview.putpixel(xy=(i, j), value=(r,g,b,a))
-                k+=1
-                
+
+                b: int = pixel & 0xFF
+                g: int = (pixel >> 8) & 0xFF
+                r: int = (pixel >> 16) & 0xFF
+                a: int = (pixel >> 24) & 0xFF
+
+                self._preview.putpixel(xy=(i, j), value=(r, g, b, a))
+                k += 1
+
         return self._preview
 
     @no_type_check

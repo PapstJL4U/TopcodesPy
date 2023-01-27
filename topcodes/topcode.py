@@ -2,6 +2,7 @@
 import math as math
 from typing import no_type_check
 from PIL import Image, ImageDraw
+
 """
 Original JAVA
 
@@ -222,36 +223,36 @@ class TopCode(object):
         sweepa: float = self.orientation * (180 / math.pi)
         r: float = self._width * 0.5 * self._unit
         r_ceil = round(r)
-        #im = Image.new("RGBA", (2*r_ceil,2*r_ceil))
+        # im = Image.new("RGBA", (2*r_ceil,2*r_ceil))
         draw = ImageDraw.Draw(im)
 
-        #draw.rectangle([0,0,500,500], fill=(128,128,128))
-        box = [self.x - r_ceil, self.y - r_ceil, self.x + r_ceil, self.y + r_ceil]
-        draw.ellipse(box, fill=(255,255,255), outline=(255,255,255), width=1)
+        # draw.rectangle([0,0,500,500], fill=(128,128,128))
+        box = ((self.x - r_ceil, self.y - r_ceil), (self.x + r_ceil, self.y + r_ceil))
+        draw.ellipse(box, fill=(255, 255, 255), outline=(255, 255, 255), width=1)
 
         for i in range(0, self.SECTORS, 1):
-            color = (255,255,255) if ((bits & 0x1) > 0) else (0,0,0)
-            start = i * sweep + sweepa 
-            end = start+sweep
+            color = (255, 255, 255) if ((bits & 0x1) > 0) else (0, 0, 0)
+            start = i * sweep + sweepa
+            end = start + sweep
             draw.pieslice(box, start, end, fill=color, width=1)
             bits >>= 1
 
         r -= self.unit
-        color = (255,255,255)
-        box = [self.x - r, self.y - r, self.x + r, self.y + r]
-        draw.ellipse(box, fill=color, outline=(255,255,255), width=1)
+        color = (255, 255, 255)
+        boxx = [self.x - r, self.y - r, self.x + r, self.y + r]
+        draw.ellipse(boxx, fill=color, outline=(255, 255, 255), width=1)
 
         r -= self.unit
-        color = (0,0,0)
-        box = [self.x - r, self.y - r, self.x + r, self.y + r]
-        draw.ellipse(box, fill=color, outline=(0,0,0), width=1)
+        color = (0, 0, 0)
+        boxx = [self.x - r, self.y - r, self.x + r, self.y + r]
+        draw.ellipse(boxx, fill=color, outline=(0, 0, 0), width=1)
 
         r -= self.unit
-        color = (255,255,255)
-        box = [self.x - r, self.y - r, self.x + r, self.y + r]
-        draw.ellipse(box, fill=color, outline=(255,255,255), width=1)
+        color = (255, 255, 255)
+        boxx = [self.x - r, self.y - r, self.x + r, self.y + r]
+        draw.ellipse(boxx, fill=color, outline=(255, 255, 255), width=1)
 
-        im.save("code"+str(self.code)+".png", format="PNG")
+        im.save("code" + str(self.code) + ".png", format="PNG")
 
     def printBits(self, bits: int):
         """
@@ -288,7 +289,7 @@ def generateCodes() -> list[TopCode]:
             code.orientation = 0
             tcodes[count] = code
             code = TopCode()
-            count+=1
+            count += 1
 
         base += 1
 

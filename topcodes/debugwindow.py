@@ -40,9 +40,18 @@ mid = sg.Column(
                 "", disabled=True, key="-path-", enable_events=True, expand_x=True
             ),
         ],
-        [ sg.Text("MaxCodeDiameter"),
-            sg.Slider((0,1000), default_value=320, tick_interval=200, enable_events=True, key="-code_dia-", orientation="horizontal", expand_x=True)
-        ]
+        [
+            sg.Text("MaxCodeDiameter"),
+            sg.Slider(
+                (0, 1000),
+                default_value=320,
+                tick_interval=200,
+                enable_events=True,
+                key="-code_dia-",
+                orientation="horizontal",
+                expand_x=True,
+            ),
+        ],
     ],
     expand_x=True,
 )
@@ -54,8 +63,8 @@ layout = [[top], [mid], [bottom]]
 window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
 myScanner: Scanner = Scanner()
 myScanner.setMaxCodeDiameter(window["-code_dia-"].DefaultValue)
-draw_codes : Image.Image | None = None
-draw_threshold : Image.Image | None = None
+draw_codes: Image.Image | None = None
+draw_threshold: Image.Image | None = None
 show_threshold: bool = False
 show_topcodes: bool = False
 codes: list[TopCode] = []
@@ -63,8 +72,9 @@ codes: list[TopCode] = []
 Functions
 """
 
+
 def findTopCodes(path: str = "") -> None:
-    """ find all codes in the current displayed image"""
+    """find all codes in the current displayed image"""
     global codes
     codes = myScanner.scan_by_filename(path)
     output = window["-output-"]
@@ -73,7 +83,8 @@ def findTopCodes(path: str = "") -> None:
         output.print(code.code)
     output.print("--Finished--")
 
-def reset()->None:
+
+def reset() -> None:
     """reset buttons and buffered images"""
     global draw_codes
     draw_codes = None
@@ -88,10 +99,12 @@ def reset()->None:
     window["-highlight-"].update(disabled=True)
     window["-threshold-"].update(disabled=True)
 
+
 def loadImage(path: str = "") -> None:
     window["-image-"].update(source=path)
 
-def drawCodes(path: str = "")->None:
+
+def drawCodes(path: str = "") -> None:
     """draw every Topcode at the correct position and orientation"""
     global draw_codes
     buf = BytesIO()
@@ -99,10 +112,11 @@ def drawCodes(path: str = "")->None:
         draw_codes = Image.open(path)
         for code in codes:
             code.draw(draw_codes)
-        
+
     draw_codes.save(buf, format="PNG")
     window["-image-"].update(data=buf.getvalue())
-        
+
+
 while True:
     event, values = window.read()
     if (
@@ -127,7 +141,7 @@ while True:
         if not show_threshold:
             image: Image.Image = myScanner.getPreview()
             buffered = BytesIO()
-            #image.save("threshold.png")
+            # image.save("threshold.png")
             image.save(buffered, format="PNG")
             window["-image-"].update(data=buffered.getvalue())
             del image
@@ -136,8 +150,8 @@ while True:
         else:
             loadImage(values["-path-"])
             window["-threshold-"].update(text="Show Threshold")
-            show_threshold = False   
-            
+            show_threshold = False
+
     if event == "-highlight-":
         if not show_topcodes:
             drawCodes(values["-path-"])
@@ -148,7 +162,7 @@ while True:
 
     if event == "-code_dia-":
         reset()
-        i:int = int(values["-code_dia-"])
+        i: int = int(values["-code_dia-"])
         myScanner.setMaxCodeDiameter(i)
 
 
