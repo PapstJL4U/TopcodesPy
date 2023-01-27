@@ -1,6 +1,5 @@
 """Describes the TopCodes"""
 import math as math
-from typing import no_type_check
 from PIL import Image, ImageDraw
 
 """

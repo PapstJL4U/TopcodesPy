@@ -98,7 +98,7 @@ class Scanner(object):
         """returns the height of the current image"""
         return self._height
 
-    def setMaxCodeDiameter(self, diameter: int = 0):
+    def setMaxCodeDiameter(self, diameter: int = 0)->None:
         """
         Sets the maximum allowable diameter (in pixels) for a TopCode
         identified by the scanner.  Setting this to a reasonable value for

@@ -1,7 +1,6 @@
 """Small GUI to find out if this stuff is working"""
 import PySimpleGUI as sg
 from scanner import Scanner
-import base64
 from PIL import Image
 from io import BytesIO
 from topcode import TopCode
