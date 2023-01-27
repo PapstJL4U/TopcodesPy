@@ -252,7 +252,7 @@ class TopCode(object):
         boxx = [self.x - r, self.y - r, self.x + r, self.y + r]
         draw.ellipse(boxx, fill=color, outline=(255, 255, 255), width=1)
 
-        im.save("code" + str(self.code) + ".png", format="PNG")
+        #im.save("code" + str(self.code) + ".png", format="PNG")
 
     def printBits(self, bits: int):
         """
