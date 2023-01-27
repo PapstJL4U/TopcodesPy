@@ -138,7 +138,7 @@ FilenameFilter
       g.fillRect(0, 0, w, h);
 
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                         RenderingHints.VALUE_ANTIALIAS_ON);
+                        RenderingHints.VALUE_ANTIALIAS_ON);
 
       BufferedImage image;
 

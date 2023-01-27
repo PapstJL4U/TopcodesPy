@@ -62,11 +62,12 @@ class Scanner(object):
             self._data[i] = pixel
 
         self._threshold()
+        """
         # debugging
-
         with open("tops_adapt_py.int", "w") as f:
             for pixel in self._data:
                 f.write(format(pixel, "b") + "\n")
+        """
 
         return self._findCodes()
 
@@ -402,7 +403,8 @@ class Scanner(object):
 
     @no_type_check
     def annotate(self, g: object, topcode: TopCode) -> None:
-        """drawing method"""
+        """drawing method not yet python conform"""
+
         dx: float = 0.0
         dy: float = 0.0
         dist: float = 0.0

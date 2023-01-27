@@ -40,6 +40,9 @@ mid = sg.Column(
                 "", disabled=True, key="-path-", enable_events=True, expand_x=True
             ),
         ],
+        [ sg.Text("MaxCodeDiameter"),
+            sg.Slider((0,1000), default_value=320, tick_interval=200, enable_events=True, key="-code_dia-", orientation="horizontal", expand_x=True)
+        ]
     ],
     expand_x=True,
 )
@@ -50,14 +53,15 @@ layout = [[top], [mid], [bottom]]
 
 window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
 myScanner: Scanner = Scanner()
-myScanner.setMaxCodeDiameter(320)
+myScanner.setMaxCodeDiameter(window["-code_dia-"].DefaultValue)
+draw_codes : Image.Image | None = None
+draw_threshold : Image.Image | None = None
 show_threshold: bool = False
 show_topcodes: bool = False
 codes: list[TopCode] = []
 """
 Functions
 """
-
 
 def findTopCodes(path: str = "") -> None:
     global codes
@@ -73,11 +77,15 @@ def loadImage(path: str = "") -> None:
 
 def drawCodes(path: str = "")->None:
     """draw every Topcode at the correct position and orientation"""
-    img = Image.open(path)
-    for code in codes:
-        code.draw(img)
-    img.save("drawn.png", format="PNG")
-    #window["-image-"].update(data=img)
+    global draw_codes
+    buf = BytesIO()
+    if draw_codes == None:
+        draw_codes = Image.open(path)
+        for code in codes:
+            code.draw(draw_codes)
+        
+    draw_codes.save(buf, format="PNG")
+    window["-image-"].update(data=buf.getvalue())
         
 while True:
     event, values = window.read()
@@ -87,12 +95,18 @@ while True:
         break
     if event == "-close-":
         pass
+
     if event == "-findCode-":
         findTopCodes(values["-path-"])
-    if event == "-path-":
-        window["-findCode-"].update(disabled=False)
         window["-highlight-"].update(disabled=False)
         window["-threshold-"].update(disabled=False)
+
+    if event == "-path-":
+        window["-findCode-"].update(disabled=False)
+        window["-highlight-"].update(disabled=True)
+        window["-threshold-"].update(disabled=True)
+        draw_codes = None
+        draw_threshold = None
         loadImage(values["-path-"])
 
     if event == "-threshold-":
@@ -101,8 +115,8 @@ while True:
             buffered = BytesIO()
             #image.save("threshold.png")
             image.save(buffered, format="PNG")
-            img_str = base64.b64encode(buffered.getvalue())
-            window["-image-"].update(data=img_str)
+            window["-image-"].update(data=buffered.getvalue())
+            del image
             show_threshold = True
             window["-threshold-"].update(text="Don't show Threshold")
         else:
@@ -117,6 +131,10 @@ while True:
         else:
             loadImage(values["-path-"])
             show_topcodes = False
+
+    if event == "-code_dia-":
+        i:int = int(values["-code_dia-"])
+        myScanner.setMaxCodeDiameter(i)
 
 
 window.close()
