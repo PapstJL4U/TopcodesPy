@@ -64,6 +64,7 @@ Functions
 """
 
 def findTopCodes(path: str = "") -> None:
+    """ find all codes in the current displayed image"""
     global codes
     codes = myScanner.scan_by_filename(path)
     output = window["-output-"]
@@ -71,6 +72,21 @@ def findTopCodes(path: str = "") -> None:
     for code in codes:
         output.print(code.code)
     output.print("--Finished--")
+
+def reset()->None:
+    """reset buttons and buffered images"""
+    global draw_codes
+    draw_codes = None
+    global draw_threshold
+    draw_threshold = None
+    global show_threshold
+    show_threshold = False
+    global show_topcodes
+    show_topcodes = False
+
+    window["-findCode-"].update(disabled=False)
+    window["-highlight-"].update(disabled=True)
+    window["-threshold-"].update(disabled=True)
 
 def loadImage(path: str = "") -> None:
     window["-image-"].update(source=path)
@@ -102,9 +118,7 @@ while True:
         window["-threshold-"].update(disabled=False)
 
     if event == "-path-":
-        window["-findCode-"].update(disabled=False)
-        window["-highlight-"].update(disabled=True)
-        window["-threshold-"].update(disabled=True)
+        reset()
         draw_codes = None
         draw_threshold = None
         loadImage(values["-path-"])
@@ -133,6 +147,7 @@ while True:
             show_topcodes = False
 
     if event == "-code_dia-":
+        reset()
         i:int = int(values["-code_dia-"])
         myScanner.setMaxCodeDiameter(i)
 
