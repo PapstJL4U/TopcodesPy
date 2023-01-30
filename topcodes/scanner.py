@@ -15,6 +15,7 @@ from PIL import Image
 from itertools import count
 from topcode import TopCode
 import math as math
+import time as T
 
 
 class Scanner(object):
@@ -53,6 +54,8 @@ class Scanner(object):
         self._height = image.height
         LOP = list(image.convert("RGBA").getdata())
         self._data = [0] * len(LOP)
+
+        start:float = T.time()
         for i in range(len(LOP)):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
@@ -60,8 +63,14 @@ class Scanner(object):
             # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
+        end:float = T.time()
+        print("RGBA->ARGB time: "+str(1000*(end-start)))
 
+        start = T.time()
         self._threshold()
+        end = T.time()
+        print("threshold time: "+str(1000*(end-start)))
+
         """
         # debugging
         with open("tops_adapt_py.int", "w") as f:

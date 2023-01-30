@@ -1,5 +1,6 @@
 """Small GUI to find out if this stuff is working"""
 import PySimpleGUI as sg
+import time as T
 from scanner import Scanner
 from PIL import Image
 from io import BytesIO
@@ -75,13 +76,16 @@ Functions
 def findTopCodes(path: str = "") -> None:
     """find all codes in the current displayed image"""
     global codes
+    start = T.time()
     codes = myScanner.scan_by_filename(path)
     output = window["-output-"]
     output.print("--Codes--")
     for code in codes:
         output.print(code.code)
+    
+    end = T.time()
+    output.print("Ellapsed Time (ms): "+str(round((end-start)*1000,0)))
     output.print("--Finished--")
-
 
 def reset() -> None:
     """reset buttons and buffered images"""
