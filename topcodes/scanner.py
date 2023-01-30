@@ -77,8 +77,12 @@ class Scanner(object):
             for pixel in self._data:
                 f.write(format(pixel, "b") + "\n")
         """
+        start = T.time()
+        fc = self._findCodes()
+        end = T.time()
+        print("_findCodes() time: "+str(1000*(end-start)))
 
-        return self._findCodes()
+        return fc
 
     def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list[TopCode]:
         """untested java -> python image->pillow"""
@@ -275,8 +279,6 @@ class Scanner(object):
                         b2 += 1
                     # this could be a top code
                     else:
-                        mask: int
-
                         if (
                             b1 >= 2
                             and b2 >= 2
@@ -288,7 +290,7 @@ class Scanner(object):
                             and abs(b1 - b2) <= b1
                             and abs(b1 - b2) <= b2
                         ):
-                            mask = 0x2000000
+                            mask :int  = 0x2000000
 
                             dk = 1 + b1 + w1 // 2
                             if j % 2 == 0:
