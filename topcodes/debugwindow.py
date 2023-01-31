@@ -5,6 +5,7 @@ from scanner import Scanner
 from PIL import Image
 from io import BytesIO
 from topcode import TopCode
+from scalene import scalene_profiler
 
 """
 Layout
@@ -72,12 +73,13 @@ codes: list[TopCode] = []
 Functions
 """
 
-
 def findTopCodes(path: str = "") -> None:
     """find all codes in the current displayed image"""
     global codes
     start = T.time()
+    #scalene_profiler.start()
     codes = myScanner.scan_by_filename(path)
+    #scalene_profiler.stop()
     output = window["-output-"]
     output.print("--Codes--")
     for code in codes:
@@ -85,6 +87,10 @@ def findTopCodes(path: str = "") -> None:
     
     end = T.time()
     output.print("Ellapsed Time (ms): "+str(round((end-start)*1000,0)))
+    candidates: str = str(myScanner.ccount)
+    tested:str = str(myScanner.tcount)
+    output.print("Candidates: "+candidates+" || Tested: "+tested)
+    output.print(str(myScanner._maxu))
     output.print("--Finished--")
 
 def reset() -> None:

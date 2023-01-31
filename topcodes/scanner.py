@@ -55,7 +55,7 @@ class Scanner(object):
         LOP = list(image.convert("RGBA").getdata())
         self._data = [0] * len(LOP)
 
-        start:float = T.time()
+        start:float = T.time() 
         for i in range(len(LOP)):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
@@ -63,7 +63,8 @@ class Scanner(object):
             # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
-        end:float = T.time()
+        
+            end:float = T.time()
         print("RGBA->ARGB time: "+str(1000*(end-start)))
 
         start = T.time()
@@ -171,7 +172,7 @@ class Scanner(object):
         for j in range(y - 1, y + 2, 1):
             for i in range(x - 1, x + 2, 1):
                 pixel = self._data[j * self._width + i]
-                summ += (pixel >> 24) & 0x01
+                summ += ((pixel >> 24) & 0x01)
         if summ >= 5:
             return 1
         else:
@@ -211,7 +212,7 @@ class Scanner(object):
             k = 0 if (j % 2 == 0) else (self._width - 1)
             k += j * self._width
 
-            for i in range(self._width):
+            for _ in range(self._width):
                 """
                 Calculate pixen intensity (0-255)
                 """
@@ -240,8 +241,7 @@ class Scanner(object):
                 Compare the average sum to current
                 pixel to decide black or white
                 """
-                f: float = 0.85
-                f = 0.975
+                f: float = 0.975
                 a = 0 if (a < threshold * f) else 1
 
                 """
@@ -315,6 +315,7 @@ class Scanner(object):
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
         k: int = self._width * 2
+        start = T.time()
         for j in range(2, self._height - 2):
             for i in range(self._width):
                 if (self._data[k] & 0x2000000) > 0:
@@ -326,11 +327,17 @@ class Scanner(object):
                     ):
                         if not self.overlaps(spots, i, j):
                             self._tcount += 1
+                            start = T.time()
                             self.decode(spot, i, j)
+                            end = T.time()
+                            print("decode time("+str(self._tcount)+"): "+str(1000*(end-start)))
+
                             if spot.isValid:
                                 spots.append(spot)
                                 spot = TopCode()
                 k += 1
+        end = T.time()
+        print("findCode Loop time: "+str(1000*(end-start)))
         return spots
 
     def overlaps(self, spots: list[TopCode], x: int, y: int) -> bool:
