@@ -5,7 +5,6 @@ from scanner import Scanner
 from PIL import Image
 from io import BytesIO
 from topcode import TopCode
-from scalene import scalene_profiler
 
 """
 Layout

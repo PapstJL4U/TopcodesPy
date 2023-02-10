@@ -10,6 +10,7 @@ author Michael Horn
 
 python version by PapstJL4U
 """
+import itertools
 from typing import no_type_check
 from PIL import Image
 from itertools import count
@@ -56,7 +57,7 @@ class Scanner(object):
         self._data = [0] * len(LOP)
 
         start:float = T.time() 
-        for i in range(len(LOP)):
+        for i in itertools.islice(itertools.count(start=0, step=1), len(LOP)):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
@@ -64,7 +65,7 @@ class Scanner(object):
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
         
-            end:float = T.time()
+        end:float = T.time()
         print("RGBA->ARGB time: "+str(1000*(end-start)))
 
         start = T.time()
@@ -203,7 +204,7 @@ class Scanner(object):
 
         self._ccount = 0
 
-        for j in range(self._height):
+        for j in itertools.islice(itertools.count(start=0, step=1), self._height):
             level, b1, b2, w1 = 0, 0, 0, 0
             """
             Process rows back and forth 
@@ -212,7 +213,7 @@ class Scanner(object):
             k = 0 if (j % 2 == 0) else (self._width - 1)
             k += j * self._width
 
-            for _ in range(self._width):
+            for _ in itertools.islice(itertools.count(start=0, step=1), self._width):
                 """
                 Calculate pixen intensity (0-255)
                 """
@@ -315,9 +316,9 @@ class Scanner(object):
         spots: list[TopCode] = []
         spot: TopCode = TopCode()
         k: int = self._width * 2
-        start = T.time()
-        for j in range(2, self._height - 2):
-            for i in range(self._width):
+        starto = T.time()
+        for j in itertools.islice(itertools.count(start=2, step=1), self._height - 2):
+            for i in itertools.islice(itertools.count(start=0, step=1), self._width):
                 if (self._data[k] & 0x2000000) > 0:
                     if (
                         (self._data[k - 1] & 0x2000000) > 0
@@ -336,8 +337,8 @@ class Scanner(object):
                                 spots.append(spot)
                                 spot = TopCode()
                 k += 1
-        end = T.time()
-        print("findCode Loop time: "+str(1000*(end-start)))
+        endo = T.time()
+        print("findCode Loop time: "+str(1000*(endo-starto)))
         return spots
 
     def overlaps(self, spots: list[TopCode], x: int, y: int) -> bool:
