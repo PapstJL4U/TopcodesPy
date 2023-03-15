@@ -542,7 +542,7 @@ class Scanner(object):
         sy: int = 0
         bit: int = 0
         bits: int = 0
-        self._code = -1
+        topcode.code = -1
 
         topcore = topcode.get_core()
 
@@ -599,6 +599,7 @@ class Scanner(object):
 
     def decode(self, topcode: TopCode, cx: int, cy: int) -> int:
 
+        start = T.time()
         up: int = (
             self.ydist(cx, cy, -1)
             + self.ydist(cx - 1, cy, -1)
@@ -620,11 +621,17 @@ class Scanner(object):
             + self.xdist(cx, cy + 1, 1)
         )
 
+        end = T.time()
+        print("decode(y/xdist) time: "+str(1000*(end-start)))
+        
         topcode.x = cx
         topcode.x += (right - left) / 6.0
         topcode.y = cy
         topcode.y += (down - up) / 6.0
+        start = T.time()
         topcode.unit = self.readUnit(topcode)
+        end = T.time()
+        print("decode(readunit()) time: "+str(1000*(end-start)))
         topcode.code = -1
         if topcode.unit < 0:
             return -1
@@ -638,6 +645,8 @@ class Scanner(object):
         Try different unit and arc adjustments, 
         save the one that produces a maximum confidence reading...
         """
+        start = T.time()
+        topcode.unit = self.readUnit(topcode)
         for u in range(-2, 3):
             for a in range(10):
                 arca = a * topcode.ARC * 0.1
@@ -648,7 +657,11 @@ class Scanner(object):
                     maxc = c
                     maxa = arca
                     maxu = topcode.unit + (topcode.unit * 0.05 * u)
-
+        end = T.time()
+        print("decode(readcode()) time: "+str(1000*(end-start)))
+        """
+        One last call to readCode to reset orientation and code
+        """
         if maxc > 0:
             topcode.unit = maxu
             self.readCode(topcode, topcode.unit, maxa)
