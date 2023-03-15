@@ -36,9 +36,7 @@ mid = sg.Column(
                 key="-browse-",
                 enable_events=True,
             ),
-            sg.Input(
-                "", disabled=True, key="-path-", enable_events=True, expand_x=True
-            ),
+            sg.Input("", disabled=True, key="-path-", enable_events=True, expand_x=True),
         ],
         [
             sg.Text("MaxCodeDiameter"),
@@ -72,25 +70,27 @@ codes: list[TopCode] = []
 Functions
 """
 
+
 def findTopCodes(path: str = "") -> None:
     """find all codes in the current displayed image"""
     global codes
     start = T.time()
-    #scalene_profiler.start()
+    # scalene_profiler.start()
     codes = myScanner.scan_by_filename(path)
-    #scalene_profiler.stop()
+    # scalene_profiler.stop()
     output = window["-output-"]
     output.print("--Codes--")
     for code in codes:
         output.print(code.code)
-    
+
     end = T.time()
-    output.print("Ellapsed Time (ms): "+str(round((end-start)*1000,0)))
+    output.print("Ellapsed Time (ms): " + str(round((end - start) * 1000, 0)))
     candidates: str = str(myScanner.ccount)
-    tested:str = str(myScanner.tcount)
-    output.print("Candidates: "+candidates+" || Tested: "+tested)
+    tested: str = str(myScanner.tcount)
+    output.print("Candidates: " + candidates + " || Tested: " + tested)
     output.print(str(myScanner._maxu))
     output.print("--Finished--")
+
 
 def reset() -> None:
     """reset buttons and buffered images"""
@@ -127,9 +127,7 @@ def drawCodes(path: str = "") -> None:
 
 while True:
     event, values = window.read()
-    if (
-        event == sg.WIN_CLOSED or event == "Cancel"
-    ):  # if user closes window or clicks cancel
+    if event == sg.WIN_CLOSED or event == "Cancel":  # if user closes window or clicks cancel
         break
     if event == "-close-":
         pass

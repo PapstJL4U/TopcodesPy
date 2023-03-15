@@ -10,10 +10,9 @@ author Michael Horn
 
 python version by PapstJL4U
 """
-import itertools
 from typing import no_type_check
 from PIL import Image
-from itertools import count
+from itertools import count, islice
 from topcode import TopCode
 import math as math
 import time as T
@@ -56,22 +55,22 @@ class Scanner(object):
         LOP = list(image.convert("RGBA").getdata())
         self._data = [0] * len(LOP)
 
-        start:float = T.time() 
-        for i in itertools.islice(itertools.count(start=0, step=1), len(LOP)):
+        start: float = T.time()
+        for i in islice(count(start=0, step=1), len(LOP)):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
             # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
             self._data[i] = pixel
-        
-        end:float = T.time()
-        print("RGBA->ARGB time: "+str(1000*(end-start)))
+
+        end: float = T.time()
+        print("RGBA->ARGB time: " + str(1000 * (end - start)))
 
         start = T.time()
         self._threshold()
         end = T.time()
-        print("threshold time: "+str(1000*(end-start)))
+        print("threshold time: " + str(1000 * (end - start)))
 
         """
         # debugging
@@ -82,7 +81,7 @@ class Scanner(object):
         start = T.time()
         fc = self._findCodes()
         end = T.time()
-        print("_findCodes() time: "+str(1000*(end-start)))
+        print("_findCodes() time: " + str(1000 * (end - start)))
 
         return fc
 
@@ -113,7 +112,7 @@ class Scanner(object):
         """returns the height of the current image"""
         return self._height
 
-    def setMaxCodeDiameter(self, diameter: int = 0)->None:
+    def setMaxCodeDiameter(self, diameter: int = 0) -> None:
         """
         Sets the maximum allowable diameter (in pixels) for a TopCode
         identified by the scanner.  Setting this to a reasonable value for
@@ -168,12 +167,11 @@ class Scanner(object):
         if x < 1 or x > (self._width - 2) or y < 1 or y > (self._height - 2):
             return 0
 
-        pixel: int = 0
         summ: int = 0
         for j in range(y - 1, y + 2, 1):
             for i in range(x - 1, x + 2, 1):
-                pixel = self._data[j * self._width + i]
-                summ += ((pixel >> 24) & 0x01)
+                pixel: int = self._data[j * self._width + i]
+                summ += (pixel >> 24) & 0x01
         if summ >= 5:
             return 1
         else:
@@ -204,7 +202,7 @@ class Scanner(object):
 
         self._ccount = 0
 
-        for j in itertools.islice(itertools.count(start=0, step=1), self._height):
+        for j in islice(count(start=0, step=1), self._height):
             level, b1, b2, w1 = 0, 0, 0, 0
             """
             Process rows back and forth 
@@ -213,7 +211,7 @@ class Scanner(object):
             k = 0 if (j % 2 == 0) else (self._width - 1)
             k += j * self._width
 
-            for _ in itertools.islice(itertools.count(start=0, step=1), self._width):
+            for _ in islice(count(start=0, step=1), self._width):
                 """
                 Calculate pixen intensity (0-255)
                 """
@@ -233,9 +231,7 @@ class Scanner(object):
                 Factor in sum from the previous row
                 """
                 if k >= self._width:
-                    threshold = (summ + (self._data[k - self._width] & 0xFFFFFF)) // (
-                        2 * s
-                    )
+                    threshold = (summ + (self._data[k - self._width] & 0xFFFFFF)) // (2 * s)
                 else:
                     threshold = summ // s
                 """
@@ -291,7 +287,7 @@ class Scanner(object):
                             and abs(b1 - b2) <= b1
                             and abs(b1 - b2) <= b2
                         ):
-                            mask :int  = 0x2000000
+                            mask: int = 0x2000000
 
                             dk = 1 + b1 + w1 // 2
                             if j % 2 == 0:
@@ -317,8 +313,8 @@ class Scanner(object):
         spot: TopCode = TopCode()
         k: int = self._width * 2
         starto = T.time()
-        for j in itertools.islice(itertools.count(start=2, step=1), self._height - 2):
-            for i in itertools.islice(itertools.count(start=0, step=1), self._width):
+        for j in islice(count(start=2, step=1), self._height - 2):
+            for i in islice(count(start=0, step=1), self._width):
                 if (self._data[k] & 0x2000000) > 0:
                     if (
                         (self._data[k - 1] & 0x2000000) > 0
@@ -331,14 +327,14 @@ class Scanner(object):
                             start = T.time()
                             self.decode(spot, i, j)
                             end = T.time()
-                            print("decode time("+str(self._tcount)+"): "+str(1000*(end-start)))
-
+                            print("decode time(" + str(self._tcount) + "): " + str(1000 * (end - start)))
+                            print("======================================")
                             if spot.isValid:
                                 spots.append(spot)
                                 spot = TopCode()
                 k += 1
         endo = T.time()
-        print("findCode Loop time: "+str(1000*(endo-starto)))
+        print("findCode Loop time: " + str(1000 * (endo - starto)))
         return spots
 
     def overlaps(self, spots: list[TopCode], x: int, y: int) -> bool:
@@ -355,16 +351,15 @@ class Scanner(object):
         Counts the number of vertical pixels from (x,y)
         until a color change is perceived
         """
-        sample: int = 0
         start: int = self.getBW3x3(x, y)
+        for j in count(y + d, d):
 
-        j: int = y + d
-        while j > 1 and j < (self._height - 1):
-            sample = self.getBW3x3(x, j)
+            sample: int = self.getBW3x3(x, j)
             if start + sample == 1:
                 value = (j - y) if d > 0 else (y - j)
                 return value
-            j += d
+            if j <= 1 or j > self._height:
+                break
         return -1
 
     def xdist(self, x: int, y: int, d: int) -> int:
@@ -374,16 +369,15 @@ class Scanner(object):
         Return = -1: error
 
         """
-        sample: int = 0
         start: int = self.getBW3x3(x, y)
+        for i in count(x + d, d):
 
-        i: int = x + d
-        while i > 1 and i < (self._width - 1):
-            sample = self.getBW3x3(i, y)
+            sample: int = self.getBW3x3(i, y)
             if start + sample == 1:
                 value = (i - x) if d > 0 else (x - i)
                 return value
-            i += d
+            if i <= 1 or i > self._width - 1:
+                break
         return -1
 
     def getPreview(self) -> Image.Image:
@@ -477,13 +471,7 @@ class Scanner(object):
         distD: int = 0
 
         for i in count(start=1):
-            if (
-                (sx - i < 1)
-                or (sx + i >= iwidth - 1)
-                or (sy - i < 1)
-                or (sy + i >= iheight - 1)
-                or (i > 100)
-            ):
+            if (sx - i < 1) or (sx + i >= iwidth - 1) or (sy - i < 1) or (sy + i >= iheight - 1) or (i > 100):
                 return -1
 
             # Left sample
@@ -559,12 +547,7 @@ class Scanner(object):
                 topcore[i] = self.getSample3x3(sx, sy)
 
             # white rings
-            if (
-                (topcore[1] <= 128)
-                or (topcore[3] <= 128)
-                or (topcore[4] <= 128)
-                or (topcore[6] <= 128)
-            ):
+            if (topcore[1] <= 128) or (topcore[3] <= 128) or (topcore[4] <= 128) or (topcore[6] <= 128):
                 return 0
 
             # black ring
@@ -572,14 +555,7 @@ class Scanner(object):
                 return 0
 
             # compute confidence in core sample
-            c += (
-                topcore[1]
-                + topcore[3]
-                + topcore[4]
-                + topcore[6]
-                + (0xFF - topcore[2])
-                + (0xFF - topcore[5])
-            )
+            c += topcore[1] + topcore[3] + topcore[4] + topcore[6] + (0xFF - topcore[2]) + (0xFF - topcore[5])
 
             # data rings
             c += abs(topcore[7] * 2 - 0xFF)
@@ -600,30 +576,14 @@ class Scanner(object):
     def decode(self, topcode: TopCode, cx: int, cy: int) -> int:
 
         start = T.time()
-        up: int = (
-            self.ydist(cx, cy, -1)
-            + self.ydist(cx - 1, cy, -1)
-            + self.ydist(cx + 1, cy, -1)
-        )
-        down: int = (
-            self.ydist(cx, cy, 1)
-            + self.ydist(cx - 1, cy, 1)
-            + self.ydist(cx + 1, cy, 1)
-        )
-        left: int = (
-            self.xdist(cx, cy, -1)
-            + self.xdist(cx, cy - 1, -1)
-            + self.xdist(cx, cy + 1, 1)
-        )
-        right: int = (
-            self.xdist(cx, cy, 1)
-            + self.xdist(cx, cy - 1, 1)
-            + self.xdist(cx, cy + 1, 1)
-        )
+        up: int = self.ydist(cx, cy, -1) + self.ydist(cx - 1, cy, -1) + self.ydist(cx + 1, cy, -1)
+        down: int = self.ydist(cx, cy, 1) + self.ydist(cx - 1, cy, 1) + self.ydist(cx + 1, cy, 1)
+        left: int = self.xdist(cx, cy, -1) + self.xdist(cx, cy - 1, -1) + self.xdist(cx, cy + 1, 1)
+        right: int = self.xdist(cx, cy, 1) + self.xdist(cx, cy - 1, 1) + self.xdist(cx, cy + 1, 1)
 
         end = T.time()
-        print("decode(y/xdist) time: "+str(1000*(end-start)))
-        
+        print("decode(y/xdist) time: " + str(1000 * (end - start)))
+
         topcode.x = cx
         topcode.x += (right - left) / 6.0
         topcode.y = cy
@@ -631,7 +591,7 @@ class Scanner(object):
         start = T.time()
         topcode.unit = self.readUnit(topcode)
         end = T.time()
-        print("decode(readunit()) time: "+str(1000*(end-start)))
+        print("decode(readunit()) time: " + str(1000 * (end - start)))
         topcode.code = -1
         if topcode.unit < 0:
             return -1
@@ -650,15 +610,13 @@ class Scanner(object):
         for u in range(-2, 3):
             for a in range(10):
                 arca = a * topcode.ARC * 0.1
-                c = self.readCode(
-                    topcode, topcode.unit + (topcode.unit * 0.05 * u), arca
-                )
+                c = self.readCode(topcode, topcode.unit + (topcode.unit * 0.05 * u), arca)
                 if c > maxc:
                     maxc = c
                     maxa = arca
                     maxu = topcode.unit + (topcode.unit * 0.05 * u)
         end = T.time()
-        print("decode(readcode()) time: "+str(1000*(end-start)))
+        print("decode(readcode()) time: " + str(1000 * (end - start)))
         """
         One last call to readCode to reset orientation and code
         """
