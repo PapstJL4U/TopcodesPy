@@ -87,6 +87,7 @@ class Scanner(object):
 
     def scan_rgb_data(self, rgb: list[int], width: int, height: int) -> list[TopCode]:
         """untested java -> python image->pillow"""
+        raise NotImplementedError
         self._width = width
         self._height = height
         self._data = rgb
@@ -574,7 +575,7 @@ class Scanner(object):
             return 0
 
     def decode(self, topcode: TopCode, cx: int, cy: int) -> int:
-
+        
         start = T.time()
         up: int = self.ydist(cx, cy, -1) + self.ydist(cx - 1, cy, -1) + self.ydist(cx + 1, cy, -1)
         down: int = self.ydist(cx, cy, 1) + self.ydist(cx - 1, cy, 1) + self.ydist(cx + 1, cy, 1)
