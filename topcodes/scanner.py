@@ -14,7 +14,7 @@ from typing import no_type_check
 from PIL import Image
 from itertools import count, islice
 from topcode import TopCode
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 
 import math as math
 import time as T
@@ -59,17 +59,23 @@ class Scanner(object):
         start: float = T.time()
         n:int = 4
         intervall : int = (int) (len(LOP)/n)
-        print(f"{intervall=}")    
+        print(f"{intervall=}, {len(LOP)=}")
+        results = []
         with Pool(n) as p:
-            chunks = []
+            chunks=[]
             for i in range(n):
-                chunks.append([0+i*intervall, intervall+i*intervall, LOP])
-            p.starmap_async(self.rgba_to_argb, chunks)
+                chunk = [0+i*intervall, intervall, LOP]
+                print((0+i*intervall, intervall, "LOP"))
+                chunks.append(chunk)
+            results = p.imap(self.wrap_r_t_a, chunks)
+            #print(len(results))
+            i = 0
+            for res in results.next():
+                i+=len(res)
 
-        #self.rgba_to_argb_classic(LOP)
         end: float = T.time()
         print("RGBA->ARGB time: " + str(1000 * (end - start)))
-
+        self.rgba_to_argb_classic(LOP)
         start = T.time()
         self._threshold()
         end = T.time()
@@ -101,14 +107,20 @@ class Scanner(object):
         self._threshold()
         return self._findCodes()
     
-    def rgba_to_argb(self, start:int, end:int, LOP:list[int])->None:
-        for i in islice(count(start=start, step=1), end):
+    def wrap_r_t_a(self, args:list[any])->list[int]:
+        start, length, lop = args[0], args[1], args[3]
+        return self.rgba_to_argb(start, length, lop)
+    
+    def rgba_to_argb(self, starty:int, length:int, LOP:list[int])->list[int]:
+        result:list[int] = [0]*(length)
+        for i in islice(count(start=starty, step=1), starty+length):
             r, g, b, alpha = LOP[i]
             # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
             # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
             # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
             pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
-            self._data[i] = pixel
+            result[i-starty] = pixel
+        return result
     
     def rgba_to_argb_classic(self, LOP:list[int])->None:
         for i in islice(count(start=0, step=1), len(LOP)):
