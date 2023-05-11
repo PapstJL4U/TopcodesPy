@@ -510,10 +510,10 @@ class Scanner(object):
             if distR > 0 and distL > 0 and distU > 0 and distD > 0:
                 u: float = (distR + distL + distU + distD) / 8.0
                 if abs(distR + distL - distU - distD) > u:
-                    return -1
+                    return -1.0
                 else:
                     return u
-        return -1
+        return -1.0
 
     def readCode(self, topcode: TopCode, unit: float, arca: float) -> int:
         """
@@ -542,7 +542,7 @@ class Scanner(object):
 
             # Take 8 samples across the diameter of the symbol
             for i in range(topcode.WIDTH):
-                dist = (i - 3.5) * topcode.unit
+                dist = (i - 3.5) * unit
                 sx = round(topcode.x + dx * dist)
                 sy = round(topcode.y + dy * dist)
                 topcore[i] = self.getSample3x3(sx, sy)

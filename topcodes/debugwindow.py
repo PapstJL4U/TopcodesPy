@@ -61,7 +61,7 @@ layout = [[top], [mid], [bottom]]
 window: sg.Window = sg.Window("TopCode-Debug", layout, finalize=False)
 myScanner: Scanner = Scanner()
 myScanner.setMaxCodeDiameter(window["-code_dia-"].DefaultValue)
-draw_codes: Image.Image | None = None
+draw_codes: Image.Image = Image.Image()
 draw_threshold: Image.Image | None = None
 show_threshold: bool = False
 show_topcodes: bool = False
@@ -95,7 +95,7 @@ def findTopCodes(path: str = "") -> None:
 def reset() -> None:
     """reset buttons and buffered images"""
     global draw_codes
-    draw_codes = None
+    draw_codes = Image.Image()
     global draw_threshold
     draw_threshold = None
     global show_threshold
@@ -116,10 +116,9 @@ def drawCodes(path: str = "") -> None:
     """draw every Topcode at the correct position and orientation"""
     global draw_codes
     buf = BytesIO()
-    if draw_codes == None:
-        draw_codes = Image.open(path)
-        for code in codes:
-            code.draw(draw_codes)
+    draw_codes = Image.open(path)
+    for code in codes:
+        code.draw(draw_codes)
 
     draw_codes.save(buf, format="PNG")
     window["-image-"].update(data=buf.getvalue())
@@ -139,7 +138,7 @@ while True:
 
     if event == "-path-":
         reset()
-        draw_codes = None
+        draw_codes = Image.Image()
         draw_threshold = None
         loadImage(values["-path-"])
 
