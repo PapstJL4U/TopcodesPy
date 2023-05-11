@@ -5,7 +5,11 @@ from scanner import Scanner
 from PIL import Image
 from io import BytesIO
 from topcode import TopCode
+import multiprocessing as mp
 
+if __name__ == "__main__":
+    mp.set_start_method("spawn")
+    
 """
 Layout
 """

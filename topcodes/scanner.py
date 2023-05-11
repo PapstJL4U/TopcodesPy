@@ -14,9 +14,10 @@ from typing import no_type_check
 from PIL import Image
 from itertools import count, islice
 from topcode import TopCode
+from multiprocessing import Pool
+
 import math as math
 import time as T
-
 
 class Scanner(object):
     # original image
@@ -56,14 +57,16 @@ class Scanner(object):
         self._data = [0] * len(LOP)
 
         start: float = T.time()
-        for i in islice(count(start=0, step=1), len(LOP)):
-            r, g, b, alpha = LOP[i]
-            # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
-            # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
-            # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
-            pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
-            self._data[i] = pixel
+        n:int = 4
+        intervall : int = (int) (len(LOP)/n)
+        print(f"{intervall=}")    
+        with Pool(n) as p:
+            chunks = []
+            for i in range(n):
+                chunks.append([0+i*intervall, intervall+i*intervall, LOP])
+            p.starmap_async(self.rgba_to_argb, chunks)
 
+        #self.rgba_to_argb_classic(LOP)
         end: float = T.time()
         print("RGBA->ARGB time: " + str(1000 * (end - start)))
 
@@ -97,6 +100,24 @@ class Scanner(object):
 
         self._threshold()
         return self._findCodes()
+    
+    def rgba_to_argb(self, start:int, end:int, LOP:list[int])->None:
+        for i in islice(count(start=start, step=1), end):
+            r, g, b, alpha = LOP[i]
+            # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
+            # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
+            # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
+            pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
+            self._data[i] = pixel
+    
+    def rgba_to_argb_classic(self, LOP:list[int])->None:
+        for i in islice(count(start=0, step=1), len(LOP)):
+            r, g, b, alpha = LOP[i]
+            # rgb = 256*256*256 * alpha + 65536 * r + 256 * g + b
+            # https://stackoverflow.com/questions/4801366/convert-rgb-values-to-integer
+            # the original java algorithm expects alpha + rgb, not rgb + alpha as the byte order
+            pixel: int = 0x1000000 * alpha + 0x10000 * r + 0x100 * g + b
+            self._data[i] = pixel
 
     @property
     def image(self) -> Image.Image:
@@ -386,7 +407,7 @@ class Scanner(object):
         For debugging purposes, create a black and white image
         that shows the result of adaptive thresholding
         """
-        if self._preview_exists == True:
+        if self._preview_exists is True:
             return self._preview
         self._preview = Image.new(mode="RGBA", size=(self._width, self._height))
         self._preview_exists = True
@@ -578,10 +599,13 @@ class Scanner(object):
         
         start = T.time()
         up: int = self.ydist(cx, cy, -1) + self.ydist(cx - 1, cy, -1) + self.ydist(cx + 1, cy, -1)
+        #up: int = sum(list(p.starmap(self.ydist, [(cx,cy,-1), (cx-1, cy, -1), (cx+1, cy, -1)])))
         down: int = self.ydist(cx, cy, 1) + self.ydist(cx - 1, cy, 1) + self.ydist(cx + 1, cy, 1)
+        #down: int = sum(list(p.starmap(self.ydist, [(cx,cy,1), (cx-1, cy, 1), (cx+1, cy, 1)])))
         left: int = self.xdist(cx, cy, -1) + self.xdist(cx, cy - 1, -1) + self.xdist(cx, cy + 1, 1)
+        #left: int = sum(list(p.starmap(self.xdist, [(cx,cy,-1), (cx, cy-1, -1), (cx, cy+1, 1)])))
         right: int = self.xdist(cx, cy, 1) + self.xdist(cx, cy - 1, 1) + self.xdist(cx, cy + 1, 1)
-
+        #right: int = sum(list(p.starmap(self.xdist, [(cx,cy, 1), (cx, cy-1, 1), (cx, cy+1, 1)])))
         end = T.time()
         print("decode(y/xdist) time: " + str(1000 * (end - start)))
 

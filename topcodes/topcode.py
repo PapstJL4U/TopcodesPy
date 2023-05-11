@@ -268,6 +268,9 @@ class TopCode(object):
                 print(" ")
 
         print(" = " + str(bits))
+    
+    def __str__(self):
+        return f"Code:{self._code}, {self._x=}, {self._y=}, orientation={round(self.orientation,3)}"
 
 
 def generateCodes() -> list[TopCode]:
